@@ -8,6 +8,7 @@
 #include <ArduinoJson.h>
 #include "PAT_Task_MQTT.h"
 #include <WiFiClient.h>
+//#include <UIPEthernet.h>
 //#include <ESP32Ping.h>
 //#include "PAT_PCB_HAL.h"
 //#include "PAT_Memory.h"
@@ -15,12 +16,284 @@
 // #include "PAT_Task_MCU.h"
 // #include "PAT_Task_WebServer.h"
 // #include "PAT_Task_PushButton.h"
+
 #define delay_ms(xxx)       vTaskDelay( xxx / portTICK_PERIOD_MS);
 
 const uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 const int espNowChannel = 1;
 bool espNowInitSuccess = false;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//const IPAddress remote_ip(_WEBSOCKET_SERVER_IP_ARRAY); //_WEBSOCKET_PORT
+
+const char* serverIP = _WEBSOCKET_SERVER_IP;
+const int serverPort = _WEBSOCKET_PORT;
+const long timeout = 10; // Timeout in seconds
+
+extern class_JSON JSONx;
+extern class_JSON JSON1_action_relay;
+extern class_JSON JSON1_report_relay;
+extern class_JSON JSON1_weeklySchedule;
+extern class_JSON JSON1_setDateTime;
+
+extern const char*	_WIFI_SSID[];
+extern const char* _WIFI_PASSWORD[];
+
+WebSocketsClient webSocket;
+MQTTPubSubClient mqttClient;    //MQTTPubSub::PubSubClient<256> mqttClient;
+class_MQTT MQTT;
+
+//___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+void task_MQTT(void) {
+    UIPEthernet.maintain();
+  IPAddress ip = UIPEthernet.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+  //WiFi_PrintStatus();
+
+  mqttClient.update();  // should be called
+  if (!mqttClient.isConnected() || (WiFi.status() != WL_CONNECTED) ) MQTT.init();//|| (!Ping.ping(remote_ip))//
+  
+  //----------------------------------------------------
+  if (JSON1_action_relay.payloadFlag){
+      implement_action_relay(); 
+      JSON1_action_relay.payloadFlag=0;
+  }
+  if (JSON1_report_relay.payloadFlag){
+      implement_report_relay();
+      JSON1_report_relay.payloadFlag=0;
+  }
+  if (JSON1_weeklySchedule.payloadFlag){
+      weeklySchedulePutToStruct();
+      JSON1_weeklySchedule.payloadFlag=0;
+  }
+  if (JSON1_setDateTime.payloadFlag){
+      implement_setDateTime();
+      JSON1_setDateTime.payloadFlag=0;
+  }
+    //----------------------------------------------------
+}*/
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void onMqttMessage(const String &topic, const String &payload, const size_t size) {
+   
+    if (JSONx.putTemporary(payload)) {
+    //----------------------------------------------------
+    if (JSON1_action_relay.topic.equals(topic)&&
+        JSON1_action_relay.key.equals(JSONx.dB["type"].as<String>())) 
+                {
+                  JSON1_action_relay.submit(payload);
+
+                }
+    //----------------------------------------------------
+    else if ( JSON1_report_relay.topic.equals(topic)&&
+              JSON1_report_relay.key.equals(JSONx.dB["type"].as<String>())) 
+                {
+                  JSON1_report_relay.submit(payload);
+                }
+    //----------------------------------------------------
+    else if ( JSON1_weeklySchedule.topic.equals(topic)&&
+              JSON1_weeklySchedule.key.equals(JSONx.dB["type"].as<String>())) 
+                {
+                  JSON1_weeklySchedule.submit(payload);
+                }
+    //----------------------------------------------------
+    else if ( JSON1_setDateTime.topic.equals(topic)&&
+              JSON1_setDateTime.key.equals(JSONx.dB["type"].as<String>())) 
+                {
+                  JSON1_setDateTime.submit(payload);
+                }
+
+  }
+      //----------------------------------------------------
+  };
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int class_MQTT::init(void) {
+  if(WiFi_Init()==WL_CONNECTED) {
+  //if(Ethernet_Init()) {
+  Serial.print("MQTT ...");
+      webSocket.begin(_WEBSOCKET_SERVER_IP, _WEBSOCKET_PORT, _SEPARATOR_PATH, _URL_PATH); //webSocket.isConnected()
+      webSocket.setReconnectInterval(2000);
+      mqttClient.begin(webSocket);  
+      fori(5){
+              if (mqttClient.connect(_CLIENT_NAME, _USERNAME_SERVER, _PASSWORD_SERVER)) { 
+                            mqttClient.subscribe  (_TOPIC1, [](const String &payload, const size_t size){}); 
+                            mqttClient.subscribe  (_TOPIC2, [](const String &payload, const size_t size){}); 
+                            mqttClient.subscribe  (_TOPIC3, [](const String &payload, const size_t size){}); 
+                            mqttClient.subscribe([](const String &topic, const String &payload, const size_t size){  
+                                                 onMqttMessage(topic, payload, size); 
+                                                 });
+                            Serial.println(" connected");
+                            return 1;
+                            }
+          Serial.print(". ");
+           delay_ms(1000);
+      }
+    }
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int WiFi_Init(void) {
+  Serial.print(F("Connecting to .... "));
+ fori(_NUMBER_OF_SSID){
+   forj(5){
+          Serial.print(" SSID["+String(i)+"] ");
+          WiFi.begin(_WIFI_SSID[i], _WIFI_PASSWORD[i]);
+           delay_ms(1000); //this is a delay to wait for the connection to be established dont remove this line
+          if (WiFi.status() == WL_CONNECTED) {
+                                                                            Serial.println("connected"); 
+                                                                            return WiFi.status();
+                                                                           }
+          }
+ }
+  Serial.println(" Failed to connect"); 
+  WiFi_PrintStatus();
+  return WiFi.status() ;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+byte mac[] = {0xA0, 0xB7, 0x65, 0x4E, 0xD1, 0xA4}; 
+int Ethernet_Init(void) {
+
+  Serial.print(F("Ethernet Connecting to .... "));
+  // Set ENC28J60 pins as OUTPUT
+  pinMode(ENC28J60_SCK, OUTPUT);
+  pinMode(ENC28J60_MOSI, OUTPUT);
+  pinMode(ENC28J60_MISO, INPUT);
+  pinMode(ENC28J60_CS, OUTPUT);
+  // Set initial states
+  digitalWrite(ENC28J60_CS, HIGH);
+  // Initialize the Ethernet library
+  if (UIPEthernet.begin(mac))
+  {
+  Serial.println(F("connected"));  
+  IPAddress ip = UIPEthernet.localIP();  // Obtain and print IP address
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+  return 1;
+  }
+Serial.println(" Failed to connect");
+return 0;
+}*/
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void WiFi_PrintStatus() {
+  Serial.print(F("IP= "));
+  Serial.println(WiFi.localIP());
+  Serial.print(F("SSID: "));
+  Serial.println(WiFi.SSID());
+  int32_t rssi = WiFi.RSSI();
+  Serial.print(F("RSSI: "));
+  Serial.println(String(rssi) + F(" dBm"));
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*int class_MQTT::init(void) {
+    if(WiFi_Init()==WL_CONNECTED) {
+      Serial.println("MQTT ... ");
+      webSocket.begin(_WEBSOCKET_SERVER_IP, _WEBSOCKET_PORT, _SEPARATOR_PATH, _URL_PATH); //webSocket.isConnected()
+      webSocket.setReconnectInterval(2000);
+      mqttClient.begin(webSocket);  
+      fori(5){
+              if (mqttClient.connect(_CLIENT_NAME, _USERNAME_SERVER, _PASSWORD_SERVER)) { 
+                            mqttClient.subscribe  (_TOPIC1, [](const String &payload, const size_t size){}); 
+                            mqttClient.subscribe  (_TOPIC2, [](const String &payload, const size_t size){}); 
+                            mqttClient.subscribe  (_TOPIC3, [](const String &payload, const size_t size){}); 
+                            mqttClient.subscribe([](const String &topic, const String &payload, const size_t size){  
+                                                 onMqttMessage(topic, payload, size); 
+                                                 });
+                            Serial.print(" connected");
+                            return 1;
+                            }
+          Serial.print(". ");
+          delay(1000);
+      }
+    }
+  return 0;
+}*/
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*int WiFi_Init(void) {
+  Serial.print(F("Connecting to .... "));
+ fori(_NUMBER_OF_SSID){
+   forj(5){
+          Serial.print(" SSID["+String(i)+"] ");
+          WiFi.begin(_WIFI_SSID[i], _WIFI_PASSWORD[i]);
+          delay(1000); //this is a delay to wait for the connection to be established dont remove this line
+          if (WiFi.status() == WL_CONNECTED) {
+                                                                            Serial.println("connected"); 
+                                                                            return WiFi.status();
+                                                                           }
+          }
+ }
+  Serial.println(" Failed to connect"); 
+  WiFi_PrintStatus();
+  return WiFi.status() ;
+}*/                                              
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*void espNowHandler(const uint8_t *mac_addr, const uint8_t *data, int data_len) {
+// Handle data received via ESP-NOW and forward it to MQTT
+  if (client.connected()) {
+    String topic = "espnow_data";
+    client.publish(topic, data, data_len);
+  }
+}
+int ESPNOW_init(void) {
+
+  if (esp_now_init() == ESP_OK) {
+    esp_now_register_recv_cb(espNowHandler);
+    esp_now_set_pmk((uint8_t *)password, 32);
+    esp_now_add_peer(gatewayAddress, ESP_NOW_ROLE_COMBO, 0, NULL, 0);
+    return 1;
+  }
+  Serial.println("Failed to initialize ESP-NOW");
+   return 0;
+}
+*/
+
+/*
+bool pingServer() {
+
+   WiFiClient client;
+  // Try to connect to the server
+  if (client.connect(serverIP, serverPort)) {
+    // Send a ping message to the server
+    client.write("ping");
+
+    // Wait for the response
+    long start = millis();
+    while (!client.available() && millis() - start < timeout * 1000) {
+      delay_ms(100);
+    }
+
+    // Check if the response is the expected "pong" message
+    if (client.available()) {
+      char buffer[1024];
+      int bytesRead = client.readBytesUntil('\n', buffer, sizeof(buffer));
+      if (bytesRead > 0 && strcmp(buffer, "pong\n") == 0) {
+        // Server responded to ping
+        client.stop();
+        return true;
+      } else {
+        // Invalid response from server
+        client.stop();
+        return false;
+      }
+    } else {
+      // Timeout occurred
+      client.stop();
+      return false;
+    }
+  } else {
+    // Failed to connect to server
+    return false;
+  }
+}
+*/
+
 /*
 void loop()
 {
@@ -46,35 +319,45 @@ void loop()
 
 
 
-//const IPAddress remote_ip(_WEBSOCKET_SERVER_IP_ARRAY); //_WEBSOCKET_PORT
+/*
+bool pingServer() {
+  WiFiClient webSocket;
+  // Try to connect to the server
+  if (webSocket.connect(serverIP, serverPort)) {
+    // Send a ping message to the server
+    webSocket.write("ping");
 
-const char* serverIP = _WEBSOCKET_SERVER_IP;
-const int serverPort = _WEBSOCKET_PORT;
-const long timeout = 10; // Timeout in seconds
+    // Wait for the response
+    long start = millis();
+    while (!webSocket.available() && millis() - start < timeout * 1000) {
+      delay_ms(100);
+    }
+
+    // Check if the response is the expected "pong" message
+    if (webSocket.available()) {
+      char buffer[1024];
+      int bytesRead = webSocket.readBytesUntil('\n', buffer, sizeof(buffer));
+      if (bytesRead > 0 && strcmp(buffer, "pong\n") == 0) {
+        // Server responded to ping
+        webSocket.stop();
+        return true;
+      } else {
+        // Invalid response from server
+        webSocket.stop();
+        return false;
+      }
+    } else {
+      // Timeout occurred
+      webSocket.stop();
+      return false;
+    }
+  } else {
+    // Failed to connect to server
+    return false;
+  }
+}*/
 
 
-
-
-
-
-extern class_JSON JSONx;
-extern class_JSON JSON1_action_relay;
-extern class_JSON JSON1_report_relay;
-extern class_JSON JSON1_weeklySchedule;
-extern class_JSON JSON1_setDateTime;
-
-extern const char*	_WIFI_SSID[];
-extern const char* _WIFI_PASSWORD[];
-
-
-
-WebSocketsClient webSocket;
-MQTTPubSubClient mqttClient;    //MQTTPubSub::PubSubClient<256> mqttClient;
-class_MQTT MQTT;
-
-//___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task___task
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Define MQTT broker connection parameters
 /*
 const char* brokerAddress = "192.168.1.10";
 const char* topic = "esp32/status";
@@ -144,92 +427,7 @@ void loop() {
   delay(10000); // Wait for 10 seconds before pinging again
 }*/
 
-bool pingServer() {
-  WiFiClient webSocket;
-  // Try to connect to the server
-  if (webSocket.connect(serverIP, serverPort)) {
-    // Send a ping message to the server
-    webSocket.write("ping");
-
-    // Wait for the response
-    long start = millis();
-    while (!webSocket.available() && millis() - start < timeout * 1000) {
-      delay_ms(100);
-    }
-
-    // Check if the response is the expected "pong" message
-    if (webSocket.available()) {
-      char buffer[1024];
-      int bytesRead = webSocket.readBytesUntil('\n', buffer, sizeof(buffer));
-      if (bytesRead > 0 && strcmp(buffer, "pong\n") == 0) {
-        // Server responded to ping
-        webSocket.stop();
-        return true;
-      } else {
-        // Invalid response from server
-        webSocket.stop();
-        return false;
-      }
-    } else {
-      // Timeout occurred
-      webSocket.stop();
-      return false;
-    }
-  } else {
-    // Failed to connect to server
-    return false;
-  }
-}
-
-
-
-
-
-
-
-
-
 /*
-bool pingServer() {
-
-   WiFiClient client;
-  // Try to connect to the server
-  if (client.connect(serverIP, serverPort)) {
-    // Send a ping message to the server
-    client.write("ping");
-
-    // Wait for the response
-    long start = millis();
-    while (!client.available() && millis() - start < timeout * 1000) {
-      delay_ms(100);
-    }
-
-    // Check if the response is the expected "pong" message
-    if (client.available()) {
-      char buffer[1024];
-      int bytesRead = client.readBytesUntil('\n', buffer, sizeof(buffer));
-      if (bytesRead > 0 && strcmp(buffer, "pong\n") == 0) {
-        // Server responded to ping
-        client.stop();
-        return true;
-      } else {
-        // Invalid response from server
-        client.stop();
-        return false;
-      }
-    } else {
-      // Timeout occurred
-      client.stop();
-      return false;
-    }
-  } else {
-    // Failed to connect to server
-    return false;
-  }
-}
-*/
-
-
 void task_ping(void) {
   while (WiFi.status() == WL_CONNECTED)
   {
@@ -243,178 +441,4 @@ void task_ping(void) {
     }
   }
 }
-
-
-void task_MQTT(void) {
-  mqttClient.update();  // should be called
-  if (!mqttClient.isConnected() || (WiFi.status() != WL_CONNECTED) /*|| (!Ping.ping(remote_ip))*/) MQTT.init();
-  WiFi_PrintStatus();
-  //----------------------------------------------------
-  if (JSON1_action_relay.payloadFlag){
-      implement_action_relay(); 
-      JSON1_action_relay.payloadFlag=0;
-  }
-  if (JSON1_report_relay.payloadFlag){
-      implement_report_relay();
-      JSON1_report_relay.payloadFlag=0;
-  }
-  if (JSON1_weeklySchedule.payloadFlag){
-      weeklySchedulePutToStruct();
-      JSON1_weeklySchedule.payloadFlag=0;
-  }
-  if (JSON1_setDateTime.payloadFlag){
-      implement_setDateTime();
-      JSON1_setDateTime.payloadFlag=0;
-  }
-    //----------------------------------------------------
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void onMqttMessage(const String &topic, const String &payload, const size_t size) {
-   
-    if (JSONx.putTemporary(payload)) {
-    //----------------------------------------------------
-    if (JSON1_action_relay.topic.equals(topic)&&
-        JSON1_action_relay.key.equals(JSONx.dB["type"].as<String>())) 
-                {
-                  JSON1_action_relay.submit(payload);
-
-                }
-    //----------------------------------------------------
-    else if ( JSON1_report_relay.topic.equals(topic)&&
-              JSON1_report_relay.key.equals(JSONx.dB["type"].as<String>())) 
-                {
-                  JSON1_report_relay.submit(payload);
-                }
-    //----------------------------------------------------
-    else if ( JSON1_weeklySchedule.topic.equals(topic)&&
-              JSON1_weeklySchedule.key.equals(JSONx.dB["type"].as<String>())) 
-                {
-                  JSON1_weeklySchedule.submit(payload);
-                }
-    //----------------------------------------------------
-    else if ( JSON1_setDateTime.topic.equals(topic)&&
-              JSON1_setDateTime.key.equals(JSONx.dB["type"].as<String>())) 
-                {
-                  JSON1_setDateTime.submit(payload);
-                }
-
-  }
-      //----------------------------------------------------
-  };
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*void espNowHandler(const uint8_t *mac_addr, const uint8_t *data, int data_len) {
-// Handle data received via ESP-NOW and forward it to MQTT
-  if (client.connected()) {
-    String topic = "espnow_data";
-    client.publish(topic, data, data_len);
-  }
-}
-int ESPNOW_init(void) {
-
-  if (esp_now_init() == ESP_OK) {
-    esp_now_register_recv_cb(espNowHandler);
-    esp_now_set_pmk((uint8_t *)password, 32);
-    esp_now_add_peer(gatewayAddress, ESP_NOW_ROLE_COMBO, 0, NULL, 0);
-    return 1;
-  }
-  Serial.println("Failed to initialize ESP-NOW");
-   return 0;
-}
 */
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int class_MQTT::init(void) {
-    if(WiFi_Init()==WL_CONNECTED) {
-      Serial.print("MQTT ...");
-      webSocket.begin(_WEBSOCKET_SERVER_IP, _WEBSOCKET_PORT, _SEPARATOR_PATH, _URL_PATH); //webSocket.isConnected()
-      webSocket.setReconnectInterval(2000);
-      mqttClient.begin(webSocket);  
-      fori(5){
-              if (mqttClient.connect(_CLIENT_NAME, _USERNAME_SERVER, _PASSWORD_SERVER)) { 
-                            mqttClient.subscribe  (_TOPIC1, [](const String &payload, const size_t size){}); 
-                            mqttClient.subscribe  (_TOPIC2, [](const String &payload, const size_t size){}); 
-                            mqttClient.subscribe  (_TOPIC3, [](const String &payload, const size_t size){}); 
-                            mqttClient.subscribe([](const String &topic, const String &payload, const size_t size){  
-                                                 onMqttMessage(topic, payload, size); 
-                                                 });
-                            Serial.println(" connected");
-                            return 1;
-                            }
-          Serial.print(". ");
-           delay_ms(1000);
-      }
-    }
-  return 0;
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int WiFi_Init(void) {
-  Serial.print(F("Connecting to .... "));
- fori(_NUMBER_OF_SSID){
-   forj(5){
-          Serial.print(" SSID["+String(i)+"] ");
-          WiFi.begin(_WIFI_SSID[i], _WIFI_PASSWORD[i]);
-           delay_ms(1000); //this is a delay to wait for the connection to be established dont remove this line
-          if (WiFi.status() == WL_CONNECTED) {
-                                                                            Serial.println("connected"); 
-                                                                            return WiFi.status();
-                                                                           }
-          }
- }
-  Serial.println(" Failed to connect"); 
-  WiFi_PrintStatus();
-  return WiFi.status() ;
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void WiFi_PrintStatus() {
-  Serial.print(F("IP= "));
-  Serial.println(WiFi.localIP());
-  Serial.print(F("SSID: "));
-  Serial.println(WiFi.SSID());
-  int32_t rssi = WiFi.RSSI();
-  Serial.print(F("RSSI: "));
-  Serial.println(String(rssi) + F(" dBm"));
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*int class_MQTT::init(void) {
-    if(WiFi_Init()==WL_CONNECTED) {
-      Serial.println("MQTT ... ");
-      webSocket.begin(_WEBSOCKET_SERVER_IP, _WEBSOCKET_PORT, _SEPARATOR_PATH, _URL_PATH); //webSocket.isConnected()
-      webSocket.setReconnectInterval(2000);
-      mqttClient.begin(webSocket);  
-      fori(5){
-              if (mqttClient.connect(_CLIENT_NAME, _USERNAME_SERVER, _PASSWORD_SERVER)) { 
-                            mqttClient.subscribe  (_TOPIC1, [](const String &payload, const size_t size){}); 
-                            mqttClient.subscribe  (_TOPIC2, [](const String &payload, const size_t size){}); 
-                            mqttClient.subscribe  (_TOPIC3, [](const String &payload, const size_t size){}); 
-                            mqttClient.subscribe([](const String &topic, const String &payload, const size_t size){  
-                                                 onMqttMessage(topic, payload, size); 
-                                                 });
-                            Serial.print(" connected");
-                            return 1;
-                            }
-          Serial.print(". ");
-          delay(1000);
-      }
-    }
-  return 0;
-}*/
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*int WiFi_Init(void) {
-  Serial.print(F("Connecting to .... "));
- fori(_NUMBER_OF_SSID){
-   forj(5){
-          Serial.print(" SSID["+String(i)+"] ");
-          WiFi.begin(_WIFI_SSID[i], _WIFI_PASSWORD[i]);
-          delay(1000); //this is a delay to wait for the connection to be established dont remove this line
-          if (WiFi.status() == WL_CONNECTED) {
-                                                                            Serial.println("connected"); 
-                                                                            return WiFi.status();
-                                                                           }
-          }
- }
-  Serial.println(" Failed to connect"); 
-  WiFi_PrintStatus();
-  return WiFi.status() ;
-}*/                                              
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-

@@ -11,7 +11,7 @@ bool pingServer();
 void task_ping(void);
 void onMqttMessage(const String& topic, const String& payload, const size_t size);
 void task_MQTT(void);  
-
+int Ethernet_Init(void);
 
 class class_MQTT : public class_JSON
 {
