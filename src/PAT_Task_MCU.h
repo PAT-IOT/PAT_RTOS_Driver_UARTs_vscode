@@ -2,14 +2,13 @@
 #define __PAT_Task_MCU_h__
 
 #include <Arduino.h>
-//#include <HardwareSerial.h>
 
 
 #define _TX2_PIN 16
 #define _RX2_PIN 17
 #define _UART_MCU 2  //uart2
 
-void task_MCU(void);
+
 
 static void uart2_rx_handler();
 
@@ -17,7 +16,7 @@ class class_MCU : public HardwareSerial {
 public:
 int *flag;
 char *data;
-String relayData = "$relay[]={0,0,0,0,0,0,0,0}@";
+//String relay = "relay[]={0,0,0,0,0,0,0,0,0,0,0,0}";
 
  class_MCU() : HardwareSerial(2) {}
   void init(unsigned long baud = 9600,
@@ -27,8 +26,6 @@ String relayData = "$relay[]={0,0,0,0,0,0,0,0}@";
 
   String readData(void);
 };
-
-
 
 
 

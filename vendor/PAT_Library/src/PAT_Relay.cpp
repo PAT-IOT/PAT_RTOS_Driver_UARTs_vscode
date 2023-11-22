@@ -1,7 +1,7 @@
 #include <Arduino.h>
-#include "PAT_Relay.h"
-#include "PAT_Task_MCU.h"
-#include "PAT_JSON.h"
+#include <PAT_Relay.h>
+// #include "PAT_Task_MCU.h"
+// #include "PAT_JSON.h"
 
 //////////////////////////////////////////////////////////////////////////Fix Config////////////////////////////////////////////////////////////////////////////////////
 const uint8_t _RELAY1_PIN = 4;
@@ -27,28 +27,28 @@ class_Relay relay[] = {  //relayObjects
 
 //class_Relay RelayArray[] = {relay1, relay2, relay3, relay4};
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-extern class_MCU MCU; // Use the UART2
-extern class_Composer compose;
+// extern class_MCU MCU; // Use the UART2
+// extern class_UserBuffer ubuf;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void task_Relay(void) { 
 
-
-  MCU.println(compose.action_relay(compose.relayData[4], compose.relayData[5], compose.relayData[6], compose.relayData[7], compose.relayData[8], compose.relayData[9], compose.relayData[10], compose.relayData[11]));
+/*
+  MCU.println(ubuf.action_relay(ubuf.relay[4], ubuf.relay[5], ubuf.relay[6], ubuf.relay[7], ubuf.relay[8], ubuf.relay[9], ubuf.relay[10], ubuf.relay[11]));
   MCU.flush();
   
-  relay[0](compose.relayData[0]);
-  relay[1](compose.relayData[1]);
-  relay[2](compose.relayData[2]);
-  relay[3](compose.relayData[3]);
-
+  relay[0](ubuf.relay[0]);
+  relay[1](ubuf.relay[1]);
+  relay[2](ubuf.relay[2]);
+  relay[3](ubuf.relay[3]);
+*/
   /*
-    int relaydata[8] = { 0, 1, 0, 1, 0, 1, 0, 1 };
-    MCU.println(compose.action_relay(relaydata, 0));
+    int relay[8] = { 0, 1, 0, 1, 0, 1, 0, 1 };
+    MCU.println(ubuf.action_relay(relay, 0));
     MCU.flush();
     vTaskDelay(2000 / portTICK_PERIOD_MS);
-    int relaydata2[] = {1, 0, 1, 0, 1, 0, 1, 0};
-    MCU.println(compose.action_relay(relaydata2, 0));
-    Serial.println(compose.action_relay(relaydata2, 0));
+    int relay2[] = {1, 0, 1, 0, 1, 0, 1, 0};
+    MCU.println(ubuf.action_relay(relay2, 0));
+    Serial.println(ubuf.action_relay(relay2, 0));
     MCU.flush();
     vTaskDelay(2000 / portTICK_PERIOD_MS);
     */

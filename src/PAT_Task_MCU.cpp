@@ -15,26 +15,7 @@
 
 
 class_MCU MCU; // Use the UART2
-extern class_Composer compose;
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void task_MCU(void) { 
-
-
-      MCU.println(compose.action_relay(compose.relayData, 4));
-      MCU.flush();
-
-    /*
-    int relaydata[8] = { 0, 1, 0, 1, 0, 1, 0, 1 };
-    MCU.println(compose.action_relay(relaydata, 0));
-    MCU.flush();
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
-    int relaydata2[] = {1, 0, 1, 0, 1, 0, 1, 0};
-    MCU.println(compose.action_relay(relaydata2, 0));
-    Serial.println(compose.action_relay(relaydata2, 0));
-    MCU.flush();
-    vTaskDelay(2000 / portTICK_PERIOD_MS);
-    */
-}
+extern class_UserBuffer ubuf;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define RX_DATA_BUFFER_SIZE 256 // Define the size of the buffer
  volatile char  rx_data[RX_DATA_BUFFER_SIZE]; // Declare a volatile character array

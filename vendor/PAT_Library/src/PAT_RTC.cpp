@@ -1,28 +1,12 @@
 #include <Arduino.h>
 //#include <DS3231.h>
 //#include <Wire.h>
-#include "PAT_RTC.h"
+#include <PAT_RTC.h>
 
 class_RTC RTC;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void task_RTC(void){
-  if(RTC.initialized){
-  static int w=0;
-    DateTime now = RTC.now();
-    static DateTime future;
-  Serial.println("\nCurrent Time: " + String(now.year()) + "-" + String(now.month()) + "-" + String(now.day()) + " " + String(now.hour()) + ":" + String(now.minute()) + ":" + String(now.second()));
-    if(w==0){
-                future = RTC.now() + TimeSpan(0, 0, 1, 0); // after  1 min
-                w=1;
-            }
-  // Serial.println("\t\t\t\t\t\tFuture  Time: " + String(future.year()) + "-" + String(future.month()) + "-" + String(future.day()) + " " + String(future.hour()) + ":" + String(future.minute()) + ":" + String(future.second()));
-  //   if(future < now)  Serial.println("Alarm ON ");
-  //   else  Serial.println("\t\t\t\t\t\tAlarm OFF ");
-  }else {
-  RTC.init();
-  }
-}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int class_RTC::init(void){ 
     Wire.begin();

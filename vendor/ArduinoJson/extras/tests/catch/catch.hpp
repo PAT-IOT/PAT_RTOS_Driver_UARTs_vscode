@@ -1408,7 +1408,7 @@ namespace Catch {
 } // end namespace Catch
 
 // end catch_assertioninfo.h
-// start catch_decomposer.h
+// start catch_deubufr.h
 
 // start catch_tostring.h
 
@@ -2243,56 +2243,56 @@ namespace Catch {
         auto operator && ( T ) const -> BinaryExpr<LhsT, RhsT const&> const {
             static_assert(always_false<T>::value,
             "chained comparisons are not supported inside assertions, "
-            "wrap the expression inside parentheses, or decompose it");
+            "wrap the expression inside parentheses, or deubuf it");
         }
 
         template<typename T>
         auto operator || ( T ) const -> BinaryExpr<LhsT, RhsT const&> const {
             static_assert(always_false<T>::value,
             "chained comparisons are not supported inside assertions, "
-            "wrap the expression inside parentheses, or decompose it");
+            "wrap the expression inside parentheses, or deubuf it");
         }
 
         template<typename T>
         auto operator == ( T ) const -> BinaryExpr<LhsT, RhsT const&> const {
             static_assert(always_false<T>::value,
             "chained comparisons are not supported inside assertions, "
-            "wrap the expression inside parentheses, or decompose it");
+            "wrap the expression inside parentheses, or deubuf it");
         }
 
         template<typename T>
         auto operator != ( T ) const -> BinaryExpr<LhsT, RhsT const&> const {
             static_assert(always_false<T>::value,
             "chained comparisons are not supported inside assertions, "
-            "wrap the expression inside parentheses, or decompose it");
+            "wrap the expression inside parentheses, or deubuf it");
         }
 
         template<typename T>
         auto operator > ( T ) const -> BinaryExpr<LhsT, RhsT const&> const {
             static_assert(always_false<T>::value,
             "chained comparisons are not supported inside assertions, "
-            "wrap the expression inside parentheses, or decompose it");
+            "wrap the expression inside parentheses, or deubuf it");
         }
 
         template<typename T>
         auto operator < ( T ) const -> BinaryExpr<LhsT, RhsT const&> const {
             static_assert(always_false<T>::value,
             "chained comparisons are not supported inside assertions, "
-            "wrap the expression inside parentheses, or decompose it");
+            "wrap the expression inside parentheses, or deubuf it");
         }
 
         template<typename T>
         auto operator >= ( T ) const -> BinaryExpr<LhsT, RhsT const&> const {
             static_assert(always_false<T>::value,
             "chained comparisons are not supported inside assertions, "
-            "wrap the expression inside parentheses, or decompose it");
+            "wrap the expression inside parentheses, or deubuf it");
         }
 
         template<typename T>
         auto operator <= ( T ) const -> BinaryExpr<LhsT, RhsT const&> const {
             static_assert(always_false<T>::value,
             "chained comparisons are not supported inside assertions, "
-            "wrap the expression inside parentheses, or decompose it");
+            "wrap the expression inside parentheses, or deubuf it");
         }
     };
 
@@ -2389,14 +2389,14 @@ namespace Catch {
         auto operator && ( RhsT const& ) -> BinaryExpr<LhsT, RhsT const&> const {
             static_assert(always_false<RhsT>::value,
             "operator&& is not supported inside assertions, "
-            "wrap the expression inside parentheses, or decompose it");
+            "wrap the expression inside parentheses, or deubuf it");
         }
 
         template<typename RhsT>
         auto operator || ( RhsT const& ) -> BinaryExpr<LhsT, RhsT const&> const {
             static_assert(always_false<RhsT>::value,
             "operator|| is not supported inside assertions, "
-            "wrap the expression inside parentheses, or decompose it");
+            "wrap the expression inside parentheses, or deubuf it");
         }
 
         auto makeUnaryExpr() const -> UnaryExpr<LhsT> {
@@ -2411,7 +2411,7 @@ namespace Catch {
         handleExpression( expr.makeUnaryExpr() );
     }
 
-    struct Decomposer {
+    struct Deubufr {
         template<typename T>
         auto operator <= ( T const& lhs ) -> ExprLhs<T const&> {
             return ExprLhs<T const&>{ lhs };
@@ -2428,7 +2428,7 @@ namespace Catch {
 #pragma warning(pop)
 #endif
 
-// end catch_decomposer.h
+// end catch_deubufr.h
 // start catch_interfaces_capture.h
 
 #include <string>
@@ -2707,7 +2707,7 @@ namespace Catch {
         INTERNAL_CATCH_TRY { \
             CATCH_INTERNAL_START_WARNINGS_SUPPRESSION \
             CATCH_INTERNAL_SUPPRESS_PARENTHESES_WARNINGS \
-            catchAssertionHandler.handleExpr( Catch::Decomposer() <= __VA_ARGS__ ); \
+            catchAssertionHandler.handleExpr( Catch::Deubufr() <= __VA_ARGS__ ); \
             CATCH_INTERNAL_STOP_WARNINGS_SUPPRESSION \
         } INTERNAL_CATCH_CATCH( catchAssertionHandler ) \
         INTERNAL_CATCH_REACT( catchAssertionHandler ) \
@@ -5904,7 +5904,7 @@ namespace Catch {
 
         bool assertionEnded(AssertionStats const& assertionStats) override {
             assert(!m_sectionStack.empty());
-            // AssertionResult holds a pointer to a temporary DecomposedExpression,
+            // AssertionResult holds a pointer to a temporary DeubufdExpression,
             // which getExpandedExpression() calls to build the expression string.
             // Our section stack copy of the assertionResult will likely outlive the
             // temporary, so it must be expanded or discarded now to avoid calling
@@ -10503,7 +10503,7 @@ namespace Catch {
     }
 #endif // Platform
 // end catch_debugger.cpp
-// start catch_decomposer.cpp
+// start catch_deubufr.cpp
 
 namespace Catch {
 
@@ -10518,7 +10518,7 @@ namespace Catch {
             os << lhs << "\n" << op << "\n" << rhs;
     }
 }
-// end catch_decomposer.cpp
+// end catch_deubufr.cpp
 // start catch_enforce.cpp
 
 #include <stdexcept>

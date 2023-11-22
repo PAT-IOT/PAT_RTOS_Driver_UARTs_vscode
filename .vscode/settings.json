@@ -1,3 +1,4 @@
 {
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "disabled",
+    "cmake.sourceDirectory": "C:/Users/m.soheili/Documents/PlatformIO/Projects/231113-143535-esp32dev/vendor/Adafruit_BusIO"
 }

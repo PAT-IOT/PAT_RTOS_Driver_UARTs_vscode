@@ -2,6 +2,8 @@
 #define __PAT_Configuration_h__
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
 #define     _NUMBER_OF_SSID     3	
 
 String chipSerialNumber(void);
@@ -44,6 +46,11 @@ String chipSerialNumber(void);
 #define     forb(x) 	             for(int b = 0; b < x; b++)
 #define     forc(x) 	             for(int c = 0; c < x; c++)
 #define     ford(x) 	             for(int d = 0; d < x; d++)
+
+
+
+
+
 
 
 
