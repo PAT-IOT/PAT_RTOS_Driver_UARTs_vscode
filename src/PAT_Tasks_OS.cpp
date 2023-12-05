@@ -73,7 +73,7 @@ void taskCore1_2(void* parameter) {
   for (;;)
   {
      task_update_buf_weeklySchedule();
-     
+     serverinit();
     //Serial.println("\t\t\t" + String(millis()/1000.0) + "-> TaskCore1_2");
     delay_OS(1000);
   }

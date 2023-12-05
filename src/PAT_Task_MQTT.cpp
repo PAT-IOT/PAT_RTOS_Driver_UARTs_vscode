@@ -48,7 +48,12 @@ void onMqttMessage(const String &topic, const String &payload, const size_t size
   };
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int class_MQTT::init(void) {
-  if(WiFi_Init()==WL_CONNECTED) {
+  if (WiFi.status() != WL_CONNECTED){
+    WiFi_Init();
+    return 0;
+  }
+  else
+  {
   //if(Ethernet_Init()) {
   Serial.print("MQTT ...");
       webSocket.begin(_WEBSOCKET_SERVER_IP, _WEBSOCKET_PORT, _SEPARATOR_PATH, _URL_PATH); //webSocket.isConnected()
@@ -71,36 +76,6 @@ int class_MQTT::init(void) {
     }
   return 0;
 }
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int WiFi_Init(void) {
-  Serial.print(F("Connecting to .... "));
- fori(_NUMBER_OF_SSID){
-   forj(5){
-          Serial.print(" SSID["+String(i)+"] ");
-          WiFi.begin(_WIFI_SSID[i], _WIFI_PASSWORD[i]);
-           delay_OS(1000); //this is a delay to wait for the connection to be established dont remove this line
-          if (WiFi.status() == WL_CONNECTED) {
-                                                                            Serial.println("connected"); 
-                                                                            return WiFi.status();
-                                                                           }
-          }
- }
-  Serial.println(" Failed to connect"); 
-  WiFi_PrintStatus();
-  return WiFi.status() ;
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void WiFi_PrintStatus() {
-  Serial.print(F("IP= "));
-  Serial.println(WiFi.localIP());
-  Serial.print(F("SSID: "));
-  Serial.println(WiFi.SSID());
-  int32_t rssi = WiFi.RSSI();
-  Serial.print(F("RSSI: "));
-  Serial.println(String(rssi) + F(" dBm"));
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 

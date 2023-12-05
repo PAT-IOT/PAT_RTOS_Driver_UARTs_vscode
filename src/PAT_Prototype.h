@@ -13,6 +13,8 @@
 #include "PAT_JSON.h"
 #include "PAT_Task_MCU.h"
 #include "esp_system.h"
+#include <PAT_General.h>
+
 //-------------------------------------------------------------
 //extern class_Array< 1, 4, class_Relay > relay;
 extern class_Relay relay[];

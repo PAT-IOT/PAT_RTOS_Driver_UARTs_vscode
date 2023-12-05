@@ -1,10 +1,12 @@
 #ifndef __PAT_Configuration_h__
 #define __PAT_Configuration_h__
+//#include "dotenv.h"
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-#define     _NUMBER_OF_SSID     3	
+
 
 String chipSerialNumber(void);
 // [
@@ -17,21 +19,17 @@ String chipSerialNumber(void);
 //     {ssid:x, password:y},
 // ]
 
-// #define     _WIFI_SSID1 			"PAT_IOT"					
-// #define     _WIFI_PASSWORD1  	    "PAT_IOT123"  		
+//env.load_dotenv();
 
-// #define     _WIFI_SSID2             "PAT_IOT2"                    
-// #define     _WIFI_PASSWORD2          "<PASSWORD>"  
 
-// #define     _WIFI_SSID3             "PAT_IOT3"                    
-// #define     _WIFI_PASSWORD3          "<PASSWORD>"
-
+#define     _NUMBER_OF_SSID     3	
+#define     _NUMBER_OF_CHANNELS     env["numberOfChannels"]
 #define     _WEBSOCKET_SERVER_IP    "195.248.240.222"          //    ws://195.248.240.222
 #define     _WEBSOCKET_SERVER_IP_ARRAY    195, 248, 240, 222 
 #define     _PASSWORD_SERVER        "rLjRfTsPkUfOaQtZ"
-#define     _USERNAME_SERVER 	    "admin"
+#define     _USERNAME_SERVER 	      "admin"
 #define     _CLIENT_NAME            "arduino"
-#define     _WEBSOCKET_PORT         9001
+#define     _WEBSOCKET_PORT           9001
 #define     _SEPARATOR_PATH         "/"  // url
 #define     _URL_PATH               "mqtt"
 #define     _TOPIC1                 "IOT_Controller1" 
@@ -50,6 +48,9 @@ String chipSerialNumber(void);
 
 
 
+extern const char*	_WIFI_SSID[];
+extern const char* _WIFI_PASSWORD[];
+#define delay_OS(xxx) vTaskDelay(xxx / portTICK_PERIOD_MS);
 
 
 
@@ -87,3 +88,18 @@ String chipSerialNumber(void);
 // MQTTPubSubClient mqttClient;
 
 #endif  //__PAT_WebServer_h__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
