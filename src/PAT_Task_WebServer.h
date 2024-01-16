@@ -3,7 +3,7 @@
 
 
 void serverRequest();
-void serverinit();
+int webServerInit();
 
 
 

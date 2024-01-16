@@ -1,6 +1,11 @@
 
-#include "PAT_Prototype.h"
+#include <WiFi.h>
 #include <ESPAsyncWebServer.h>
+//#include <WebServer.h>
+#include <ESPmDNS.h>
+#include "PAT_Prototype.h"
+#include "ESPAsyncWebServer.h"
+#include "SPIFFS.h"
 #include "PAT_Task_WebServer.h"
 
 
@@ -15,33 +20,169 @@
 /// سریال نامبر
 /// تعداد رله ها
 /// 
-
-
-AsyncWebServer server(80);
+static AsyncWebServer webServer(80);
+//WebServer server(80);
+/* Put your SSID & Password */
+const char* webServer_ssid = _WEBSERVER_SSID_NAME;            //Novaday Enter SSID here
+const char* webServer_password  =  _WEBSERVER_PASSWORD_NAME;    //"11112222"  //Enter Password here
+/* Put IP Address details */
+// IPAddress webServer_local_ip(192,168,1,1);
+// IPAddress webServer_gateway(192,168,1,1);
+// IPAddress webServer_subnet(255,255,255,0);
+IPAddress webServer_local_ip(192,168,137,185);
+IPAddress webServer_gateway(192,168,1,1);
+IPAddress webServer_subnet(255,255,255,0);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void serverinit() {
-    static bool setup = false;
-    for (int i = 0; i < _RELAY_NUMBER; i++)
-    {
-        ubuf.relayMode[i] = 'm';
+int webServerInit() {
+    static bool initialized = false;
+    if (initialized)return 1;
+      // Initialize SPIFFS
+    if(!SPIFFS.begin(true)){
+        Serial.println("An Error has occurred while mounting SPIFFS");
+        initialized = false;
+        return 0;
     }
-         if (WiFi.status() != WL_CONNECTED)
-    {
-        setup = false;
-        WiFi_Init();
+    WiFi.mode(WIFI_AP_STA);  //ESP32 Access point configured
+    WiFi.softAP(_WEBSERVER_SSID_NAME, _WEBSERVER_PASSWORD_NAME);
+    WiFi.softAPConfig(webServer_local_ip, webServer_gateway, webServer_subnet);
+    delay_OS(500);
+        if (MDNS.begin(_WEBSERVER_SSID_NAME)) // Set the hostname to "Novaday"
+        {  
+            Serial.print("softAPIP=");
+            Serial.println(WiFi.softAPIP());
+            serverRequest();
+            initialized = 1;
+            return 1;
+        }
+    initialized = false;
+    Serial.println("webServer was failed");
+      return 0;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+struct Config {
+    const char* WEBSOCKET_SERVER_IP;
+    const char* WEBSOCKET_SERVER_IP_ARRAY;
+    const char* PASSWORD_SERVER;
+    const char* USERNAME_SERVER;
+    const char* CLIENT_NAME;
+    const char* WEBSOCKET_PORT;
+    const char* SEPARATOR_PATH;
+    const char* URL_PATH;
+    const char* TOPIC[3];
+    const char* WIFI_SSID[3];
+    const char* WIFI_PASSWORD[3];
+};
+
+Config Config_webServer;
+
+void serverRequest() {
+    if (!SPIFFS.begin(true)) {
+        Serial.println("An Error has occurred while mounting SPIFFS");
+        return;
     }
-    else if (!setup)
-    {
-        setup = true;
-        WiFi_PrintStatus();
-        serverRequest();
-        server.begin();
-    }
+
+    // Serve index.html on root request 
+    webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(SPIFFS, "/index.html", "text/html");
+    });
+
+    // Serve style.css
+    webServer.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(SPIFFS, "/style.css", "text/css");
+    });
+
+    // Serve javascript.js
+    webServer.on("/javascript.js", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(SPIFFS, "/javascript.js", "application/javascript");
+    });
+
+    // Handle POST request to update configuration
+    webServer.on("/updateConfig", HTTP_POST, [](AsyncWebServerRequest *request){
+        // Collect data from the request
+        if (request->hasParam("WEBSOCKET_SERVER_IP", true)) {
+            const char* value = request->getParam("WEBSOCKET_SERVER_IP", true)->value().c_str();
+            Config_webServer.WEBSOCKET_SERVER_IP = strdup(value);  // Assign the const char* directly
+        }
+        // ... (Repeat for other parameters)
+
+        // Respond with success or failure
+        request->send(200, "text/plain", "Configuration updated successfully");
+    });
+
+    webServer.begin();
+}
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+String processor(const String& var) {
+  Serial.println(var);
+  if(var == "STATE"){
+    return "On or Off";
+  }
+  return String();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void serverRequest(void)
 {
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
+  // Route for root / web page
+  webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/index.html", String(), false, processor);
+  });
+  
+  // Route to load style.css file
+  webServer.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/style.css", "text/css");
+  });
+
+  // Route to set GPIO to HIGH
+  webServer.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
+    // digitalWrite(ledPin, HIGH);    
+    request->send(SPIFFS, "/index.html", String(), false, processor);
+  });
+  
+  // Route to set GPIO to LOW
+  webServer.on("/off", HTTP_GET, [](AsyncWebServerRequest *request){
+    // digitalWrite(ledPin, LOW);    
+    request->send(SPIFFS, "/index.html", String(), false, processor);
+  });
+  webServer.begin();
+  Serial.println("HTTP server started");
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+*/
+
+
+
+/*
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int webServerInit() {
+    static bool initialized = false;
+    if (initialized)return 1;
+    WiFi.mode(WIFI_AP_STA);  //Access point configured
+    WiFi.softAP(webServer_ssid, webServer_password);
+    WiFi.softAPConfig(webServer_local_ip, webServer_gateway, webServer_subnet);
+    delay_OS(500);
+        if (MDNS.begin(webServer_ssid)) // Set the hostname to "Novaday"
+        {  
+            Serial.print("softAPIP=");
+            Serial.println(WiFi.softAPIP());
+            serverRequest();
+            initialized = 1;
+            return 1;
+        }
+    initialized = false;
+    Serial.println("webServer was failed");
+      return 0;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void serverRequest(void)
+{
+    webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
     {
         String html = "<!DOCTYPE html>"
                       "<html>"
@@ -56,19 +197,19 @@ void serverRequest(void)
                       "</style>"
                       "</head>"
                       "<body>"
-                      "<h1> IoT Control</h1>";
-
+                      "<h1> IoT Control</h1>"
         //--------------------------------------------------------------------------------------
-        for (int i = 0; i < _RELAY_NUMBER; ++i)
-        {
-          html += "<p>Relay " + String(i + 1) + ": "
-            "<input type='checkbox' id='\"/Relay" + String(i + 1) + "' name='\"/Relay" + String(i + 1) + "' value='off'>"
-            "<a href=\"/Relay" + String(i + 1) + "on\"><button style=\"background-color: #4CAF50; color: white;\">Turn ON</button></a>&nbsp;"
-                    "<a href=\"/Relay" + String(i + 1) + "off\"><button style=\"background-color: #f44336; color: white;\">Turn OFF</button></a></p>";
-        }
+            "<script>"
+            "for (int i = 0; i < 12; ++i)"
+            "{"
+            "<p>Relay + String.valueOf(i + 1)+:"
+            "<input type='checkbox' id='\"/Relay + String.valueOf(i + 1) + ' name='\"/Relay + String.valueOf(i + 1) + ' value='off'>"
+            "<a href=\"/Relay + String.valueOf(i + 1) + on\"><button style=\"background-color: #4CAF50; color: white;\">Turn ON</button></a>&nbsp;"
+            "<a href=\"/Relay + String.valueOf(i + 1) + off\"><button style=\"background-color: #f44336; color: white;\">Turn OFF</button></a></p>";
+        "}"
         //----------------------------------------------------------------
-        html += " <script>alert('pat');</script></body></html>";
-
+        " alert('PAT: Page wasn't Found');</script></body></html>";
+        //+ String(_RELAY_NUMBER) +
         request->send(200, "text/html", html);
     });
     //========================================================================================================================================================================
@@ -77,20 +218,41 @@ void serverRequest(void)
         String relayOnEndpoint = "/Relay" + String(i + 1) + "on";
         String relayOffEndpoint = "/Relay" + String(i + 1) + "off";
 
-        server.on(relayOnEndpoint.c_str(), HTTP_GET, [i](AsyncWebServerRequest *request)
+        webServer.on(relayOnEndpoint.c_str(), HTTP_GET, [i](AsyncWebServerRequest *request)
         {
             ubuf.relayM[i] = 1;
             request->redirect("/");
         });
 
-        server.on(relayOffEndpoint.c_str(), HTTP_GET, [i](AsyncWebServerRequest *request)
+        webServer.on(relayOffEndpoint.c_str(), HTTP_GET, [i](AsyncWebServerRequest *request)
         {
             ubuf.relayM[i] = 0;
             request->redirect("/");
         });
     }
+  webServer.begin();
+  Serial.println("HTTP server started");
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+*/
+/*void serverinit() {
+    static bool initialized = false;
+    for (int i = 0; i < _RELAY_NUMBER; i++)
+    {
+        ubuf.relayMode[i] = 'm';
+    }
+         if (WiFi.status() != WL_CONNECTED)
+    {
+        setup = false;
+        WiFi_Init();
+    }
+    else if (!setup)
+    {
+        setup = true;
+        WiFi_PrintStatus();
+        serverRequest();
+         }      
+}*/
 
 
 

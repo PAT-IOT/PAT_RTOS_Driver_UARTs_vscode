@@ -32,11 +32,11 @@ char buffer[250];
 float temperature;
 float humidity;
 float pressure;
- 
+ */
 
 //   WiFi.status();
 //   WiFi.localIP()
-
+/*
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
@@ -149,5 +149,4 @@ void read_sensor_data(void * parameter) {
 void loop() {    
   server.handleClient();     
 }
-
 */

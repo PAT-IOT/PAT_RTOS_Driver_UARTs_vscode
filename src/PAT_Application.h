@@ -3,19 +3,21 @@
 #include "PAT_Prototype.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void tast_leds(void);
 void task_MQTT(void);
 void task_RTC(void);
 void task_WebServer(void);
-void task_update_relay(void);
-void task_update_buf_weeklySchedule(void);
+int  task_run_weeklySchedule(void);
+void task_MCU_Received(void);
+void task_MCU_Send(void);
 
 
 
-void task_report_relay(void);
-
-void weeklySchedule_to_buf(void);
-void setDateTime_to_buf(void);
-void action_relay_to_buf(void);
+void buf_to_JSON_reportRelay(void);
+void JSON_to_buf_weeklySchedule(void);
+void JSON_to_buf_setDateTime(void);
+void JSON_to_buf_actionRelay(void);
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

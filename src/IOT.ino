@@ -1,39 +1,97 @@
+ /*
 #include "PAT_Prototype.h"
+#include <Arduino.h>
+#include "WiFi.h"
+#include "SPIFFS.h"
+#include <PAT_Memory.h>
+#include "PAT_Task_WebServer.h"
 
+ // Clear a specific portion of RAM
+  //   // Starting address of the portion you want to clear
+  //   uintptr_t startAddress = 0x3FFE0000;  // Adjust as needed
+  //   // Size of the portion you want to clear (in bytes)
+  //   size_t size = 0x14000;  // Adjust as needed
+  //   // Clear the specified portion of RAM
+  //   memset((void*)startAddress, 0, size);
 
-
-
+  // for (int i = 0; i < 320 * 1024; i++)
+  // {
+  //   *((uint32_t *)0x3ff40000 + i) = 0;
+  //   }
+ 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
-  Serial.begin(115200);
-    delay(1000);
-  Serial.println();
-  Serial.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-  Serial.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-//   //while (!PSRamFS.begin())
-//  while (!psramInit())
-//   {
-//     Serial.println("Failed to mount PSRamFS");
-//       delay(1000);
-//   }  
-//    Serial.println("PSRamFS mounted successfully");
-  for (int i = 0; i < 4; i++)
-  {
-    relay[i].init();
-  }
-
   
+  Serial.begin(115200);
+  while (!Serial);
+  Serial.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+  //esp.resetReason();
+  //esp.wdg_init(15000);
+  Ethernet_Init();
   RTC.init();
   MCU.init();
-  ubuf.load("relay");
-  delay(1000);
+  pushButton_WebServer.init();
+  pushButton_ResetPassword.init();
+  led_wifi.init();
+  led_nrf.init();
 
+  file_class_UserBuffer.load(ubuf);
+  task_run_weeklySchedule();
+  MCU.send(ubuf.relay);
+  //webServerInit();
+  //enableLoopWDT();
   tasks_OS_Init();
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void loop() {
+void loop() {    
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////      
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
+*/
+#include <SPI.h>
+#include <Ethernet2.h>
+
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+IPAddress ip(192, 168, 88, 177);
+char server[] = "www.google.com";
+
+EthernetClient client;
+
+void setup() {
+  Serial.begin(115200);
+  Ethernet.init(5);
+  Ethernet.begin(mac, ip);
+  delay(1000);
+
+  Serial.println("connecting...");
+  if (client.connect(server, 80)) {
+    Serial.println("connected");
+    client.println("GET /search?q=arduino HTTP/1.1");
+    client.println("Host: www.google.com");
+    client.println("Connection: close");
+    client.println();
+  } else {
+    Serial.println("connection failed");
+  }
+}
+
+void loop() {
+  if (client.available()) {
+    char c = client.read();
+    Serial.print(c);
+  }
+
+  if (!client.connected()) {
+    Serial.println();
+    Serial.println("disconnecting.");
+    client.stop();
+    for (;;)
+      ;
+  }
+}
+
+
 /*
 #include <Ethernet.h>
 #include <WebSocketsClient.h>  // include before MQTTPubSubClient.h
@@ -103,10 +161,131 @@ void loop() {
         mqtt.publish("/hello", "world");
     }
 }
-
 */
 
 
 
 
+/* // this code is ok
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void setup() {
+  Serial.begin(115200);
+  while (!Serial);
+  Serial.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 
+  RTC.init();
+  MCU.init();
+  ubuf.load("relay");
+  delay(100);
+
+  if(!SPIFFS.begin(true)){
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+  File file = SPIFFS.open("/text.txt");
+  if(!file){
+    Serial.println("Failed to open file for reading");
+    return;
+  }
+  Serial.println("File Content:");
+  while(file.available()){
+    Serial.write(file.read());
+  }
+  file.close();
+  tasks_OS_Init();
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void loop() {
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////      
+*/
+
+
+
+/* // this code is ok
+#include "PAT_Prototype.h"
+
+#include <Arduino.h>
+#include "WiFi.h"
+#include "ESPAsyncWebServer.h"
+#include "SPIFFS.h"
+
+// Replace with your network credentials
+const char* ssid = "PAT_IOT";
+const char* password = "PAT_IOT123";
+
+// Set LED GPIO
+const int ledPin = 2;
+// Stores LED state
+String ledState;
+
+// Create AsyncWebServer object on port 80
+AsyncWebServer server(80);
+
+// Replaces placeholder with LED state value
+String processor(const String& var){
+  Serial.println(var);
+  if(var == "STATE"){
+    if(digitalRead(ledPin)){
+      ledState = "ON";
+    }
+    else{
+      ledState = "OFF";
+    }
+    Serial.print(ledState);
+    return ledState;
+  }
+  return String();
+}
+ 
+void setup(){
+  // Serial port for debugging purposes
+  Serial.begin(115200);
+  pinMode(ledPin, OUTPUT);
+
+  // Initialize SPIFFS
+  if(!SPIFFS.begin(true)){
+    Serial.println("An Error has occurred while mounting SPIFFS");
+    return;
+  }
+
+  // Connect to Wi-Fi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
+  }
+
+  // Print ESP32 Local IP Address
+  Serial.println(WiFi.localIP());
+
+  // Route for root / web page
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/index.html", String(), false, processor);
+  });
+  
+  // Route to load style.css file
+  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/style.css", "text/css");
+  });
+
+  // Route to set GPIO to HIGH
+  server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
+    digitalWrite(ledPin, HIGH);    
+    request->send(SPIFFS, "/index.html", String(), false, processor);
+  });
+  
+  // Route to set GPIO to LOW
+  server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request){
+    digitalWrite(ledPin, LOW);    
+    request->send(SPIFFS, "/index.html", String(), false, processor);
+  });
+
+  // Start server
+  server.begin();
+}
+ 
+void loop(){
+  
+}
+*/

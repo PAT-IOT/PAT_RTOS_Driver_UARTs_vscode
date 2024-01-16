@@ -8,11 +8,12 @@ class_RTC RTC;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int class_RTC::init(void){ 
-    Wire.begin();
-    if (begin()) {
+int class_RTC::init(void) {
+  initialized = 0;
+  Wire.begin();
+    if (RTC_DS3231::begin()) {
       initialized = 1;
-      /*if (lostPower()) {
+      /*if (RTC_DS3231::lostPower()) {
         Serial.println("RTC lost power, let's set the time!");
         adjust(DateTime(F(__DATE__), F(__TIME__)));      // January 21, 2014 at 3am you would call:  // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));    // When time needs to be set on a new device, or after a power loss, the// following line sets the RTC to the date & time this sketch was compiled
       }*/

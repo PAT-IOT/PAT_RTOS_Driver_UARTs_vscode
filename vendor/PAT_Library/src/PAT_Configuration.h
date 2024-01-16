@@ -21,9 +21,9 @@ String chipSerialNumber(void);
 
 //env.load_dotenv();
 
+#define     _NUMBER_OF_CHANNELS     env["numberOfChannels"]
 
 #define     _NUMBER_OF_SSID     3	
-#define     _NUMBER_OF_CHANNELS     env["numberOfChannels"]
 #define     _WEBSOCKET_SERVER_IP    "195.248.240.222"          //    ws://195.248.240.222
 #define     _WEBSOCKET_SERVER_IP_ARRAY    195, 248, 240, 222 
 #define     _PASSWORD_SERVER        "rLjRfTsPkUfOaQtZ"
@@ -36,6 +36,11 @@ String chipSerialNumber(void);
 #define     _TOPIC2                 "IOT_Controller2"
 #define     _TOPIC3                 "IOT_Controller3"
 
+#define     _WIFI_STATION_HOST_NAME  ((const char*)("NAR_" + String(chipSerialNumber())).c_str())
+#define     _WIFI_HOST_NAME          ((const char*)("NAR_" + String(chipSerialNumber())).c_str())
+
+#define     _WEBSERVER_SSID_NAME     ((const char*)("NAR_" + String(chipSerialNumber())).c_str()) 
+#define     _WEBSERVER_PASSWORD_NAME ((const char*)("NAR_" + String(chipSerialNumber())).c_str())
 
 
 #define     fori(x) 	             for(int i = 0; i < x; i++)
@@ -51,6 +56,8 @@ String chipSerialNumber(void);
 extern const char*	_WIFI_SSID[];
 extern const char* _WIFI_PASSWORD[];
 #define delay_OS(xxx) vTaskDelay(xxx / portTICK_PERIOD_MS);
+
+
 
 
 

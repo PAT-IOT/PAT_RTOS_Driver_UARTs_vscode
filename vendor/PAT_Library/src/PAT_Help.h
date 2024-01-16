@@ -412,7 +412,7 @@ using SpiRamJsonDocument = BasicJsonDocument<SpiRamAllocator>;
 //   : topic(mytopic),key(mykey) {
 //   this->payloadFlag = 0;
 // }
-//  ubuf.relayA[relay_Index] = JSON1_action_relay.dB["mode"].as<JsonArray>()[relay_Index].as<int>();  ledcSetup(redChannel, frequency, resolution);
+//  ubuf.relayA[relay_Index] = JSON1_actionRelay.dB["mode"].as<JsonArray>()[relay_Index].as<int>();  ledcSetup(redChannel, frequency, resolution);
 // ledcSetup(greenChannel, frequency, resolution);
 // ledcAttachPin(green_pin, greenChannel);
 //static unsigned long ARDUINO_ISR_ATTR lastmillis[5];

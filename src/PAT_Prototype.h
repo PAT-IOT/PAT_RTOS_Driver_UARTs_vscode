@@ -14,7 +14,16 @@
 #include "PAT_Task_MCU.h"
 #include "esp_system.h"
 #include <PAT_General.h>
+#include <PAT_IO_Devices.h>
+#include <PAT_ESP.h>
+#include <Ethernet.h>
+extern Class_ESP esp;
+//-------------------------------------------------------------
 
+extern class_Input  pushButton_WebServer;
+extern class_Input  pushButton_ResetPassword;
+extern class_Digital_Output led_wifi;
+extern class_Digital_Output led_nrf;
 //-------------------------------------------------------------
 //extern class_Array< 1, 4, class_Relay > relay;
 extern class_Relay relay[];
@@ -88,22 +97,19 @@ extern class_weeklySchedule weeklySchedule;
 
 
 extern class_JSON JSONx;
-extern class_JSON JSON1_action_relay;
-extern class_JSON JSON1_report_relay;
+extern class_JSON JSON1_actionRelay;
+extern class_JSON JSON1_reportRelay;
 extern class_JSON JSON1_weeklySchedule;
 extern class_JSON JSON1_setDateTime;
-
 extern const char*	_WIFI_SSID[];
 extern const char* _WIFI_PASSWORD[];
-
 extern WebSocketsClient webSocket;
 extern MQTTPubSubClient mqttClient;    //MQTTPubSub::PubSubClient<256> mqttClient;
 extern class_MQTT MQTT;
 
-
 #define _RELAY_NUMBER 12
 
-
+extern class_file<class_UserBuffer> file_class_UserBuffer;
 
 
 #endif  // PAT_PROTOTYPE_H

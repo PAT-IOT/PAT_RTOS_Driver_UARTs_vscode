@@ -1,11 +1,16 @@
 #include "PAT_Prototype.h"
+#include <PAT_Memory.h>
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class_JSON        JSONx  ("JSONx" , "JSONx");
-class_JSON        JSON1_action_relay   ("IOT_Controller1" , "action_relay"  );
-class_JSON        JSON1_report_relay   ("IOT_Controller1" , "report_relay"  );
-class_JSON        JSON1_weeklySchedule ("IOT_Controller1" , "weeklySchedule");
-class_JSON        JSON1_setDateTime    ("IOT_Controller1" , "setDateTime"   );
-class_UserBuffer  ubuf;
+class_JSON        JSON1_actionRelay   (_TOPIC1 , "action_relay"  );
+class_JSON        JSON1_reportRelay   (_TOPIC1 , "report_relay"  );
+class_JSON        JSON1_weeklySchedule (_TOPIC1 , "weeklySchedule");
+class_JSON        JSON1_setDateTime    (_TOPIC1 , "setDateTime"   );
+
+class_file<class_UserBuffer> file_class_UserBuffer("file_class_UserBuffer.bin");
+class_UserBuffer ubuf;
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class_JSON::class_JSON(const char* mytopic, const char* mykey) /*: vdoc( 2048 , SpiRamAllocator())*/ {
     topic = mytopic;
@@ -74,31 +79,31 @@ int class_UserBuffer::load(String str) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int class_JSON::submit(const String &payload) {
   this->payloadError = deserializeJson(this->vdoc, payload);
-  if (payloadError) {
-    return 0;
-  } else {
+  if (!payloadError)
+  {
     this->dB = this->vdoc;
     this->save(this->dB);
     this->payloadFlag = 1;
-    }
     return 1;
+  } 
+    return 0;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int class_JSON::putTemporary(const String &payload) {
+int class_JSON::putTemporary(const String& payload) {
   this->payloadError = deserializeJson(this->vdoc, payload);
-  if (payloadError) {
-    Serial.println("Json isNot Valid : ");
-    Serial.println(payloadError.c_str());
-    return 0;
-  } else {
+  if (!payloadError)
+  {
     this->dB = this->vdoc;
     Serial.println("Json is Valid : ");
-      serializeJson(this->dB, Serial);
-      Serial.println();
-    }
-  return 1;
+    serializeJson(this->dB, Serial);
+    Serial.println();
+    return 1;
+  }
+  Serial.println("Json isNot Valid : ");
+  Serial.println(payloadError.c_str());
+  return 0;
 }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 

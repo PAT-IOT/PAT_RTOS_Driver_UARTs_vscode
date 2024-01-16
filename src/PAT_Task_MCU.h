@@ -7,28 +7,46 @@
 #define _TX2_PIN 16
 #define _RX2_PIN 17
 #define _UART_MCU 2  //uart2
+#define   _MCU_VALID_INTERVAL  3500
 
 
+static void uart2_Rx_handler();
 
-static void uart2_rx_handler();
+
+struct struct_flag{
+  public:
+    int pushButtonReceived = 0;
+    int relayReceived = 0;
+};
 
 class class_MCU : public HardwareSerial {
 public:
-int *flag;
-char *data;
-//String relay = "relay[]={0,0,0,0,0,0,0,0,0,0,0,0}";
+char* data;
+String Str = "";
+int relay[12] = { 0,0,0,0,0,0,0,0,0,0,0,0 };
+int pushButton[12] = { 0,0,0,0,0,0,0,0,0,0,0,0 };
+struct_flag flag;
 
- class_MCU() : HardwareSerial(2) {}
-  void init(unsigned long baud = 9600,
+long lastInterval = 0;
+long firstInterval = 0;
+
+class_MCU() : HardwareSerial(2) {
+
+}
+
+void init(unsigned long baud = 115200,
             int8_t rxPin = 16,
             int8_t txPin = 17,
             uint8_t rxfifo_full_thrhd = 112);
 
-  String readData(void);
+
+  String readStr(void);
+  void send(int* relay);
+  void turnOn(void);
+  void turnOff(void);
+  int extractData(String input, const char* identifier, int* dataArray);
+  int checkReceivedData(void);
 };
-
-
-
 
 //class_MCU MCU(_UART_MCU); // Use the UART2
 

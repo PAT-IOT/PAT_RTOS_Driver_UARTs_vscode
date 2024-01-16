@@ -3,6 +3,8 @@
 #include "PAT_Tasks_OS.h"
 #include "PAT_Application.h"
 
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TaskHandle_t core0_Task;
 // void core0_Loop_init(void) {
@@ -23,10 +25,12 @@ void tasks_OS_Init() {
   // Set up Core 0 tasks
   xTaskCreatePinnedToCore(taskCore0_1, "TaskCore0_1", 5000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(taskCore0_2, "TaskCore0_2", 5000, NULL, 2, NULL, 0);
+  xTaskCreatePinnedToCore(taskCore0_3, "TaskCore0_3", 5000, NULL, 3, NULL, 0);
+
 
   // Set up Core 1 tasks
-  xTaskCreatePinnedToCore(taskCore1_1, "TaskCore1_1", 10000, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(taskCore1_2, "TaskCore1_2", 5000, NULL, 2, NULL, 1);
+  xTaskCreatePinnedToCore(taskCore1_1, "TaskCore1_1", 5000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(taskCore1_2, "TaskCore1_2", 10000, NULL, 2, NULL, 1);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////------------------------------------------
 }
 //0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -36,8 +40,9 @@ void taskCore0_1(void* parameter) {
     //if (xQueueReceive(dataQueue, &receivedData, portMAX_DELAY) == pdPASS) {
      // Serial.println(String(millis()/1000.0) +"-> TaskCore0_1: receive "+ String(receivedData));
    
-    //}
-    task_RTC();
+    //} 
+    task_MCU_Send();
+    //task_RTC();
     delay_OS(1000);
   }
 }
@@ -50,32 +55,40 @@ void taskCore0_2(void* parameter) {
      //if (xQueueSend(dataQueue, &dataToSend, portMAX_DELAY) == pdPASS) {
      //Serial.println(String(millis()/1000.0) + "-> TaskCore0_2 Send : " + String(dataToSend));
      //}
-
-    delay_OS(500);
+    tast_leds();
+    delay_OS(300);
   }
 }
-
-
+//0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+void taskCore0_3(void* parameter) {
+  for (;;)
+  {
+    task_MCU_Received();
+    delay_OS(50);
+  }
+}
 //1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 void taskCore1_1(void* parameter) {
   for (;;)
   {
-    //DEBUG_MEASURE_TIME(
-      task_MQTT();
-    //)
-     task_update_relay();
-    //Serial.println("\t\t\t" + String(millis()/1000.0) + "-> TaskCore1_1");
-     delay_OS(250);
+      //Serial.println("\t\t\t" + String(millis()/1000.0) + "-> TaskCore1_1");
+      //esp.wdg_reset();
+      task_run_weeklySchedule();
+      delay_OS(1000);
+     
+
+     
   }
 }
 //1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 void taskCore1_2(void* parameter) {
   for (;;)
   {
-     task_update_buf_weeklySchedule();
-     serverinit();
-    //Serial.println("\t\t\t" + String(millis()/1000.0) + "-> TaskCore1_2");
-    delay_OS(1000);
+      //Serial.println("\t\t\t" + String(millis()/1000.0) + "-> TaskCore1_2");
+      //DEBUG_MEASURE_TIME(
+      task_MQTT();
+      //)
+      delay_OS(500);
   }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

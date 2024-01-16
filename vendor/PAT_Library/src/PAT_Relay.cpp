@@ -2,23 +2,25 @@
 #include <PAT_Relay.h>
 // #include "PAT_Task_MCU.h"
 // #include "PAT_JSON.h"
-
 //////////////////////////////////////////////////////////////////////////Fix Config////////////////////////////////////////////////////////////////////////////////////
-const uint8_t _RELAY1_PIN = 4;
-const uint8_t _RELAY2_PIN = 2;
-const uint8_t _RELAY3_PIN = 15;
-const uint8_t _RELAY4_PIN = 13;
-const uint8_t _RELAY1_ACTIVE_MODE = HIGH;
-const uint8_t _RELAY2_ACTIVE_MODE = HIGH;
-const uint8_t _RELAY3_ACTIVE_MODE = HIGH;
-const uint8_t _RELAY4_ACTIVE_MODE = HIGH;
+const uint8_t LED_WiFi = 4;
+const uint8_t LED_NRF = 4;
+
+// const uint8_t _RELAY1_PIN = 4;
+// const uint8_t _RELAY2_PIN = 2;
+// const uint8_t _RELAY3_PIN = 15;
+// const uint8_t _RELAY4_PIN = 13;
+// const uint8_t _RELAY1_ACTIVE_MODE = HIGH;
+// const uint8_t _RELAY2_ACTIVE_MODE = HIGH;
+// const uint8_t _RELAY3_ACTIVE_MODE = HIGH;
+// const uint8_t _RELAY4_ACTIVE_MODE = HIGH;
 ////////////////////////////////////////////////////////////////////////Class Definitions//////////////////////////////////////////////////////////////////////////////////////
-class_Relay relay[] = {  //relayObjects
-    class_Relay(_RELAY1_PIN, _RELAY1_ACTIVE_MODE),
-    class_Relay(_RELAY2_PIN, _RELAY2_ACTIVE_MODE),
-    class_Relay(_RELAY3_PIN, _RELAY3_ACTIVE_MODE),
-    class_Relay(_RELAY4_PIN, _RELAY4_ACTIVE_MODE)
-};
+// class_Relay relay[] = {  //relayObjects
+//     class_Relay(_RELAY1_PIN, _RELAY1_ACTIVE_MODE),
+//     class_Relay(_RELAY2_PIN, _RELAY2_ACTIVE_MODE),
+//     class_Relay(_RELAY3_PIN, _RELAY3_ACTIVE_MODE),
+//     class_Relay(_RELAY4_PIN, _RELAY4_ACTIVE_MODE)
+// };
 //class_Array<_RELAYS_FIRST_INDEX, _RELAYS_LAST_INDEX, class_Relay> relay(relayObjects);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -72,17 +74,27 @@ void class_Relay::operator()(bool activeMode) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void class_Relay::init() {
   pinMode(pin, OUTPUT);
-  turnOff();
+  digitalWrite(pin, !mode);
+  isOn = !mode;  
+  //turnOff();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void class_Relay::turnOn() {
+  if (this->isOn != mode)
+  {
   digitalWrite(pin, mode);
   this->isOn = mode;
+  }
+
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void class_Relay::turnOff() {
-  digitalWrite(pin, !mode);
-  isOn = !mode;
+    if (this->isOn == mode)
+    {
+      digitalWrite(pin, !mode);
+      isOn = !mode;
+   }
+
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool class_Relay::getState() {
