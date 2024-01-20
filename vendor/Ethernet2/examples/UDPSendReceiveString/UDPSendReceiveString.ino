@@ -14,7 +14,7 @@
 
 
 #include <SPI.h>         // needed for Arduino versions later than 0018
-#include <Ethernet2.h>
+#include "PAT_Ethernet.h"
 #include <EthernetUdp2.h>         // UDP library from: bjoern@cs.stanford.edu 12/30/2008
 
 

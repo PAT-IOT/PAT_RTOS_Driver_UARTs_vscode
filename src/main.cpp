@@ -1,4 +1,4 @@
- /*
+ 
 #include "PAT_Prototype.h"
 #include <Arduino.h>
 #include "WiFi.h"
@@ -6,19 +6,6 @@
 #include <PAT_Memory.h>
 #include "PAT_Task_WebServer.h"
 
- // Clear a specific portion of RAM
-  //   // Starting address of the portion you want to clear
-  //   uintptr_t startAddress = 0x3FFE0000;  // Adjust as needed
-  //   // Size of the portion you want to clear (in bytes)
-  //   size_t size = 0x14000;  // Adjust as needed
-  //   // Clear the specified portion of RAM
-  //   memset((void*)startAddress, 0, size);
-
-  // for (int i = 0; i < 320 * 1024; i++)
-  // {
-  //   *((uint32_t *)0x3ff40000 + i) = 0;
-  //   }
- 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
   
@@ -27,7 +14,6 @@ void setup() {
   Serial.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
   //esp.resetReason();
   //esp.wdg_init(15000);
-  Ethernet_Init();
   RTC.init();
   MCU.init();
   pushButton_WebServer.init();
@@ -48,19 +34,32 @@ void loop() {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
-*/
+
+
+
+
+
+
+
+
+
+
+/* //is working
 #include <SPI.h>
-#include <Ethernet2.h>
+#include "PAT_Ethernet.h"
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-IPAddress ip(192, 168, 88, 177);
+IPAddress ip(192, 168, 88, 21);
 char server[] = "www.google.com";
 
 EthernetClient client;
 
 void setup() {
   Serial.begin(115200);
+  pinMode(4, OUTPUT);
+  digitalWrite(4,HIGH);
   Ethernet.init(5);
+  delay(1000);
   Ethernet.begin(mac, ip);
   delay(1000);
 
@@ -90,10 +89,11 @@ void loop() {
       ;
   }
 }
+*/
 
 
 /*
-#include <Ethernet.h>
+#include "PAT_Ethernet.h"
 #include <WebSocketsClient.h>  // include before MQTTPubSubClient.h
 #include <MQTTPubSubClient.h>
 

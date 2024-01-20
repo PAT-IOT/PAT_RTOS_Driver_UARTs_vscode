@@ -45,34 +45,54 @@ void task_WebServer(void){
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void clearRAM() { 
-  esp_partition_iterator_t it = esp_partition_find(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, NULL);
-  if (it == NULL) {
-    Serial.println("Error: partition not found.");
-    return;
-  }
-  const esp_partition_t *partition = esp_partition_get(it);
-  esp_partition_erase_range(partition, 0, partition->size);
+  // esp_partition_iterator_t it = esp_partition_find(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, NULL);
+  // if (it == NULL) {
+  //   Serial.println("Error: partition not found.");
+  //   return;
+  // }
+  // const esp_partition_t *partition = esp_partition_get(it);
+  // esp_partition_erase_range(partition, 0, partition->size);
 }
   
 
 
 
 void task_MQTT(void) {
-  mqttClient.update();  // should be called
-  static uint32_t millis1 = 0;
-  if (!mqttClient.isConnected() || (WiFi.status() != WL_CONNECTED))
+  
+  mqttClient.update();
+    static uint32_t millis1 = 0;
+    //-------------------------------------
+   // (!mqttClient.ping()) ||
+    if ((!mqttClient.isConnected()) || (WiFi.status() != WL_CONNECTED))// note: mqttClient.update()   should be called
   {
+    //MQTT.erase();
+    Serial.println("MQTT is Reinitializing");
     MQTT.init();
     if ((millis() - millis1) > 20000)
     {
       Serial.println("ESP is bieng reseted");
-      clearRAM();
+      MQTT.erase();
       esp_restart();
     }
   }
-  else millis1 = millis();
-
-  //----------------------------------------------------
+  else
+  {
+     millis1 = millis();
+  }
+  //-------------------------------------
+  // static uint32_t millis1 = 0;
+  // if (!Eth_connected())
+  // {
+  //   MQTT.erase();
+  //   MQTT.init();
+  //   if ((millis() - millis1) > 40000)
+  //   {
+  //     Serial.println("ESP is bieng reseted");
+  //     esp_restart();
+  //   }
+  // }
+  // else millis1 = millis();
+  //--------------------------------------
   if (JSON1_actionRelay.payloadFlag)
   {
     JSON1_actionRelay.payloadFlag = 0;
@@ -93,7 +113,7 @@ void task_MQTT(void) {
     JSON1_setDateTime.payloadFlag = 0;
     JSON_to_buf_setDateTime();
   }
-  //----------------------------------------------------
+  //--------------------------------------
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //PAT:  at the same time , this function can update json of user to ubuf.relayS[0] , ubuf.relayS[1] , ubuf.relayS[2] , .... and   If this is (ubuf.relay[i] != ubuf.relayS[i])  , it will update    ubuf.relay[i] = ubuf.relayS[i]   and    ubuf.relayMode[i] = 's';
@@ -180,10 +200,11 @@ void task_MCU_Send(void) {
 
   if ((abs(MCU.lastInterval - MCU.firstInterval)) > _MCU_VALID_INTERVAL)
   {
-     Serial.println("MCU is bieng reseted"); Serial.println(MCU.lastInterval); Serial.println(MCU.firstInterval);
+    Serial.println("MCU is bieng reseted"); Serial.println(MCU.lastInterval); Serial.println(MCU.firstInterval);
     MCU.turnOff();
     delay_OS(2000);
     MCU.turnOn();
+    delay_OS(2000);
   }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -188,7 +188,7 @@
 #define WEBSOCKETS_NETWORK_CLASS TCPClient
 #define WEBSOCKETS_NETWORK_SERVER_CLASS TCPServer
 #else
-#include <Ethernet.h>
+#include "PAT_Ethernet.h"
 #include <SPI.h>
 #define WEBSOCKETS_NETWORK_CLASS EthernetClient
 #define WEBSOCKETS_NETWORK_SERVER_CLASS EthernetServer
@@ -211,7 +211,7 @@
 
 #elif(WEBSOCKETS_NETWORK_TYPE == NETWORK_ESP32_ETH)
 
-#include <ETH.h>
+#include <Ethernet.h>
 #define WEBSOCKETS_NETWORK_CLASS WiFiClient
 #define WEBSOCKETS_NETWORK_SERVER_CLASS WiFiServer
 

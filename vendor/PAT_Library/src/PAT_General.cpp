@@ -1,74 +1,75 @@
 #include <PAT_General.h>
 #include "WiFi.h"
 #include <PAT_Configuration.h>
-#include <Ethernet.h>
+#include "PAT_Ethernet.h"
 #include <SPI.h>
+////////////////////////////////////////////////////Config///////////////////////////////////////////////////////////////////////////////////
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+IPAddress ip(192, 168, 88, 21);
+char server[] = "www.google.com";
+//EthernetClient ethClient;
+EthernetClient googleClient;
 //////////////////////////////////////////////////////Config///////////////////////////////////////////////////////////////////////////////////
-uint8_t mac[] = {0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45};
-IPAddress ip(192, 168, 88, 235);
+int Eth_Init(void) {
+  pinMode(4, OUTPUT);
+  digitalWrite(4,HIGH);
+  Ethernet.init(5);
+  delay(1000);
+  Ethernet.begin(mac, ip);
+  delay(1000);
 
-IPAddress myDns(192, 168, 88, 1);
-//////////////////////////////////////////////////////Config///////////////////////////////////////////////////////////////////////////////////
-int Ethernet_Init(void) {
+  Serial.println("connecting...");
+  if (googleClient.connect(server, 80))
+  {
+    Serial.println("connected");
+      Serial.println(Ethernet.localIP());
+    // googleClient.println("GET /search?q=arduino HTTP/1.1");
+    // googleClient.println("Host: www.google.com");
+    // googleClient.println("Connection: close");
+    // googleClient.println();
+    return 1;
+  }
+  else
+  {
+    Serial.println("connection failed");
+  }
+  return 0;
+}
+/////////////////////////////////////////////////Class Definitions/////////////////////////////////////////////////////////////////////////////
+int Eth_connected(void) {
+  if (googleClient.connect(server, 80))
+  {
+    Serial.println("connected");
+      Serial.println(Ethernet.localIP());
+    // googleClient.println("GET /search?q=arduino HTTP/1.1");
+    // googleClient.println("Host: www.google.com");
+    // googleClient.println("Connection: close");
+    // googleClient.println();
+    return 1;
+  }
+  else
+  {
+    Serial.println("connection failed");
+  }
+  return 0;
+}
 
-  // Serial.println("Ethernet is Connecting to .... ");
-  //     tcpip_adapter_set_hostname(TCPIP_ADAPTER_IF_STA, _WIFI_STATION_HOST_NAME);
 
-
-
-
-  //     Ethernet.init(5);
-
-  //       Serial.println("Initialize Ethernet with DHCP:");
-  //   if (Ethernet.begin(mac) == 0)
-  //   {
-  //       Serial.println("Failed to configure Ethernet using DHCP");
-  //       // Check for Ethernet hardware present
-  //       if (Ethernet.hardwareStatus() == EthernetNoHardware)
-  //       {
-  //           Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
-  //       }
-  //       if (Ethernet.linkStatus() == LinkOFF)
-  //       {
-  //           Serial.println("Ethernet cable is not connected.");
-  //       }
-  //       // try to congifure using IP address instead of DHCP:
-  //       Ethernet.begin(mac, ip, myDns);
-  //   }
-  //   else
-  //   {
-  //       Serial.print("  DHCP assigned IP ");
-  //       Serial.println(Ethernet.localIP());
-  //   }
-
-
-
-
-        Ethernet.init(5);   // MKR ETH shield
-  Serial.println("Initialize Ethernet with DHCP:");
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    // Check for Ethernet hardware present
-    if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
-    }
-    if (Ethernet.linkStatus() == LinkOFF) {
-      Serial.println("Ethernet cable is not connected.");
-    }
-    // try to congifure using IP address instead of DHCP:
-    Ethernet.begin(mac, ip, myDns);
-  } else {
-    Serial.print("  DHCP assigned IP ");
-    Serial.println(Ethernet.localIP());
+/////////////////////////////////////////////////Class Definitions/////////////////////////////////////////////////////////////////////////////
+void Eth_update(void) {
+  if (googleClient.available())
+  {
+    char c = googleClient.read();
+    Serial.print(c);
   }
 
-
-  return Ethernet.linkStatus();
-
-
-
-
-
+  if (!googleClient.connected())
+  {
+    Serial.println();
+    Serial.println("disconnecting.");
+    googleClient.stop();
+    delay_OS(2000);
+  }
 }
 
 

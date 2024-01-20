@@ -21,7 +21,7 @@
  by Tom Igoe
  */
 
-#include <Ethernet2.h>
+#include "PAT_Ethernet.h"
 // the sensor communicates using SPI, so include the library:
 #include <SPI.h>
 

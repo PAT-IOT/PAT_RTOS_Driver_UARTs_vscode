@@ -20,7 +20,7 @@
 // https://arduinojson.org/v6/example/udp-beacon/
 
 #include <ArduinoJson.h>
-#include <Ethernet.h>
+#include "PAT_Ethernet.h"
 #include <SPI.h>
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};

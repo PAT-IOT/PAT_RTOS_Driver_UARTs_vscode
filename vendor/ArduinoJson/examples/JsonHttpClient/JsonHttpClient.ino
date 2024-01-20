@@ -19,7 +19,7 @@
 // https://arduinojson.org/v6/example/http-client/
 
 #include <ArduinoJson.h>
-#include <Ethernet.h>
+#include "PAT_Ethernet.h"
 #include <SPI.h>
 
 void setup() {

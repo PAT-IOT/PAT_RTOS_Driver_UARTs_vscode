@@ -16,7 +16,7 @@
 // https://arduinojson.org/v6/example/http-server/
 
 #include <ArduinoJson.h>
-#include <Ethernet.h>
+#include "PAT_Ethernet.h"t.h>
 #include <SPI.h>
 
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};

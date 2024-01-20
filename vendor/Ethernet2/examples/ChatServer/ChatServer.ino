@@ -18,7 +18,7 @@
  */
 
 #include <SPI.h>
-#include <Ethernet2.h>
+#include "PAT_Ethernet.h"
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network.

@@ -24,7 +24,7 @@ MQTT and MQTT over WebSoket Client for Arduino
 ```C++
 #include <WiFi.h>
 // or
-// #include <Ethernet.h>
+// #include "PAT_Ethernet.h"
 #include <MQTTPubSubClient.h>
 
 WiFiClient client;

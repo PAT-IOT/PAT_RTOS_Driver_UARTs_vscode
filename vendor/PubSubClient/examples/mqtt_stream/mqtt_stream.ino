@@ -10,7 +10,7 @@
 */
 
 #include <SPI.h>
-#include <Ethernet.h>
+#include "PAT_Ethernet.h"
 #include <PubSubClient.h>
 #include <SRAM.h>
 

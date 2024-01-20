@@ -42,7 +42,7 @@ void taskCore0_1(void* parameter) {
    
     //} 
     task_MCU_Send();
-    //task_RTC();
+    task_RTC();
     delay_OS(1000);
   }
 }
@@ -64,7 +64,7 @@ void taskCore0_3(void* parameter) {
   for (;;)
   {
     task_MCU_Received();
-    delay_OS(50);
+    delay_OS(20);
   }
 }
 //1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111

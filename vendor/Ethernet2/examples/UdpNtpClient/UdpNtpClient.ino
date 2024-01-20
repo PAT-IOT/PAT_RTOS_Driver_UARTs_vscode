@@ -17,7 +17,7 @@
  */
 
 #include <SPI.h>
-#include <Ethernet2.h>
+#include "PAT_Ethernet.h"
 #include <EthernetUdp2.h>
 
 // Enter a MAC address for your controller below.

@@ -8,7 +8,7 @@
 
  */
  
-#include "Ethernet2.h"
+#include "PAT_Ethernet.h"
 #include "Dhcp.h"
 
 // XXX: don't make assumptions about the value of MAX_SOCK_NUM.

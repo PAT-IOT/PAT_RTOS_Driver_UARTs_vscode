@@ -5,7 +5,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void onMqttMessage(const String& topic, const String& payload, const size_t size);
+static void onMqttMessage(const String& topic, const String& payload, const size_t size);
 
 //int Ethernet_Init(void);
 
@@ -14,6 +14,7 @@ class class_MQTT : public class_JSON
 public:
 
   int init(void);
+  void erase(void);
   //static void callback_topics(const char *topic, const char *payload, size_t length);
 };
 

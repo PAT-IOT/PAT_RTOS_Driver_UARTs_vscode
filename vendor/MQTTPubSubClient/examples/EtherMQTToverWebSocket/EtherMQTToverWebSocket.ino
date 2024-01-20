@@ -1,4 +1,4 @@
-#include <Ethernet.h>
+#include "PAT_Ethernet.h"
 #include <WebSocketsClient.h>  // include before MQTTPubSubClient.h
 #include <MQTTPubSubClient.h>
 

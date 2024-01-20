@@ -1,4 +1,4 @@
-#include <Ethernet.h>
+#include "PAT_Ethernet.h"
 #include <MQTTPubSubClient.h>
 
 uint8_t mac[] = {0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45};

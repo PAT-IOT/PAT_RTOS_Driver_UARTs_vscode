@@ -23,7 +23,7 @@
  */
 
 #include <SPI.h>
-#include <Ethernet2.h>
+#include "PAT_Ethernet.h"
 
 // assign a MAC address for the ethernet controller.
 // fill in your address here:

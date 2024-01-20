@@ -7,8 +7,8 @@
  by Arduino.org team
  
  */
-#ifndef ethernet_h
-#define ethernet_h
+#ifndef __PAT_Ethernet_h__
+#define __PAT_Ethernet_h__
 
 #include <inttypes.h>
 #include "utility/w5500.h"
@@ -71,4 +71,4 @@ public:
 
 extern EthernetClass Ethernet;
 
-#endif
+#endif  //__PAT_Ethernet_h__

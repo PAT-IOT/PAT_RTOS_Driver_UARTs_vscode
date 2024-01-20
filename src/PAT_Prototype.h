@@ -16,7 +16,7 @@
 #include <PAT_General.h>
 #include <PAT_IO_Devices.h>
 #include <PAT_ESP.h>
-#include <Ethernet.h>
+//#include "PAT_Ethernet.h"
 extern Class_ESP esp;
 //-------------------------------------------------------------
 
