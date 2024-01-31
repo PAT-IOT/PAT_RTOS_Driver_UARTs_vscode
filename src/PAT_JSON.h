@@ -224,8 +224,8 @@ class class_daySchedule {
   public:
     class_timeSchedule item[10];
     String name;
-
     class_daySchedule(const String& dayStr) : name(dayStr) {}
+
     String dayName() {
       return this->name;
     }
@@ -233,16 +233,13 @@ class class_daySchedule {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class class_weeklySchedule {
 public:
-  void Struct(void);
+
   class_daySchedule sunday{ "sunday" }, monday{ "monday" }, tuesday{ "tuesday" },
     wednesday{ "wednesday" }, thursday{ "thursday" }, friday{ "friday" }, saturday{ "saturday" };
     
     class_daySchedule* day[7] = { &sunday, &monday, &tuesday, &wednesday, &thursday, &friday, &saturday };
 };
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 class class_UserBuffer : public class_nonVolatileMemory{
 private:
   String key_Relay = "relay";
@@ -258,6 +255,5 @@ public:
   int load(String str);
 };
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 #endif  //PAT_JSON__H

@@ -6,6 +6,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // TaskHandle_t core0_Task;
 // void core0_Loop_init(void) {
 //   xTaskCreatePinnedToCore(
@@ -18,6 +19,7 @@
 //     0);            // pin task to core 0
 // }
 // dataQueue = xQueueCreate(5, sizeof(int));  // Create a queue for data transfer// Queue size of 5, assuming you're sending integers
+
 QueueHandle_t dataQueue;
 void tasks_OS_Init() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////------------------------------------------
@@ -42,7 +44,7 @@ void taskCore0_1(void* parameter) {
    
     //} 
     task_MCU_Send();
-    task_RTC();
+
     delay_OS(1000);
   }
 }
@@ -64,7 +66,7 @@ void taskCore0_3(void* parameter) {
   for (;;)
   {
     task_MCU_Received();
-    delay_OS(20);
+    //delay_OS(1);
   }
 }
 //1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
@@ -73,11 +75,9 @@ void taskCore1_1(void* parameter) {
   {
       //Serial.println("\t\t\t" + String(millis()/1000.0) + "-> TaskCore1_1");
       //esp.wdg_reset();
-      task_run_weeklySchedule();
+    task_RTC();
+    task_run_weeklySchedule();
       delay_OS(1000);
-     
-
-     
   }
 }
 //1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111

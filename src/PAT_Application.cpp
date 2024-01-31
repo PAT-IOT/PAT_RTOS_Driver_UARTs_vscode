@@ -10,7 +10,10 @@
 #include "PAT_Application.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void tast_leds(void) { 
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
+
+void tast_leds(void) {
   if (WiFi.status() == WL_CONNECTED)
   {
     (mqttClient.isConnected()) ? led_wifi.turnOn() : led_wifi.toggle();
@@ -21,44 +24,57 @@ void tast_leds(void) {
  
   /*(nrf24.status()== NRFf24_CONNECTED) ? led_nrf.turnOn() : */led_nrf.turnOff();
 }
+
+#undef DB_println
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void task_RTC(void){
-  if(RTC.initialized){
+#define DB_println(xxx) Debug_println(xxx) 
+//#define DB_println(xxx) 
+
+void task_RTC(void) {
+  if (RTC.initialized)
+  {
   static int w=0;
     DateTime now = RTC.now();
     static DateTime future;
-  Serial.println("\nCurrent Time: " + String(now.year()) + "-" + String(now.month()) + "-" + String(now.day()) + " " + String(now.hour()) + ":" + String(now.minute()) + ":" + String(now.second()));
+  DB_println("\nCurrent Time: " + String(now.year()) + "-" + String(now.month()) + "-" + String(now.day()) + " " + String(now.hour()) + ":" + String(now.minute()) + ":" + String(now.second()));
     // if(w==0){
     //             future = RTC.now() + TimeSpan(0, 0, 1, 0); // after  1 min
     //             w=1;
     //         }
-  // Serial.println("\t\t\t\t\t\tFuture  Time: " + String(future.year()) + "-" + String(future.month()) + "-" + String(future.day()) + " " + String(future.hour()) + ":" + String(future.minute()) + ":" + String(future.second()));
-  //   if(future < now)  Serial.println("Alarm ON ");
-  //   else  Serial.println("\t\t\t\t\t\tAlarm OFF ");
+  // DB_println("\t\t\t\t\t\tFuture  Time: " + String(future.year()) + "-" + String(future.month()) + "-" + String(future.day()) + " " + String(future.hour()) + ":" + String(future.minute()) + ":" + String(future.second()));
+  //   if(future < now)  DB_println("Alarm ON ");
+  //   else  DB_println("\t\t\t\t\t\tAlarm OFF ");
   }else {
   RTC.init();
   }
 }
+
+#undef DB_println 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void task_WebServer(void){
-	
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
+
+void task_WebServer(void) {
+
 }
+
+#undef DB_println 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void clearRAM() { 
   // esp_partition_iterator_t it = esp_partition_find(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, NULL);
   // if (it == NULL) {
-  //   Serial.println("Error: partition not found.");
+  //   DB_println("Error: partition not found.");
   //   return;
   // }
   // const esp_partition_t *partition = esp_partition_get(it);
   // esp_partition_erase_range(partition, 0, partition->size);
 }
-  
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
 
 void task_MQTT(void) {
-  
+
   mqttClient.update();
     static uint32_t millis1 = 0;
     //-------------------------------------
@@ -66,11 +82,11 @@ void task_MQTT(void) {
     if ((!mqttClient.isConnected()) || (WiFi.status() != WL_CONNECTED))// note: mqttClient.update()   should be called
   {
     //MQTT.erase();
-    Serial.println("MQTT is Reinitializing");
+   DB_println("MQTT is Reinitializing");
     MQTT.init();
     if ((millis() - millis1) > 20000)
     {
-      Serial.println("ESP is bieng reseted");
+     DB_println("ESP is bieng reseted");
       MQTT.erase();
       esp_restart();
     }
@@ -87,7 +103,7 @@ void task_MQTT(void) {
   //   MQTT.init();
   //   if ((millis() - millis1) > 40000)
   //   {
-  //     Serial.println("ESP is bieng reseted");
+  //     DB_println("ESP is bieng reseted");
   //     esp_restart();
   //   }
   // }
@@ -115,8 +131,13 @@ void task_MQTT(void) {
   }
   //--------------------------------------
 }
+
+#undef DB_println 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //PAT:  at the same time , this function can update json of user to ubuf.relayS[0] , ubuf.relayS[1] , ubuf.relayS[2] , .... and   If this is (ubuf.relay[i] != ubuf.relayS[i])  , it will update    ubuf.relay[i] = ubuf.relayS[i]   and    ubuf.relayMode[i] = 's';
+
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
 int task_run_weeklySchedule(void) {
   //Serial.println("____________________________________implement_weeklySchedule___________________________________");
   //---------------------------------
@@ -124,31 +145,26 @@ int task_run_weeklySchedule(void) {
   String nameOfDay = RTC.nameOfDay(now);
   int nowSec = RTC.toSecond(now);
   int wrote = 0;
-  //Serial.println("today is " + nameOfDay);
-   //--------------------------------------------------------------------------------------------------------------------------------------------------------
+  DB_println("Today is " + nameOfDay);
+  //--------------------------------------------------------------------------------------------------------------------------------------------------------
     for (int dayIndex = 0; dayIndex < 7; dayIndex++)
     {
+      DB_println("dayIndex= " + String(ubuf.weeklySchedule.day[dayIndex]->name));
       if (ubuf.weeklySchedule.day[dayIndex]->name == nameOfDay)
       {
         for (int item_Index = 9; item_Index >= 0; item_Index--)
         {
-          //Serial.println("ubuf.weeklySchedule.day["+ String(dayIndex) +"]->item[" + String(item_Index) + "].timeSec=" + String(ubuf.weeklySchedule.day[dayIndex]->item[item_Index].timeSec));
+          DB_println("ubuf.weeklySchedule.day["+ String(dayIndex) +"]->item[" + String(item_Index) + "].timeSec=" + String(ubuf.weeklySchedule.day[dayIndex]->item[item_Index].timeSec));
           if ((wrote) || (ubuf.weeklySchedule.day[dayIndex]->item[item_Index].timeSec == -1))
           {
           }
           else if ((nowSec) >= (ubuf.weeklySchedule.day[dayIndex]->item[item_Index].timeSec))
           {
             wrote = 1;
-            //Serial.println("relay is being written from item=" + String(item_Index));
-            for (int relay_Index = 0; relay_Index < _RELAY_NUMBER; relay_Index++)
+            for (int relayS_Index = 0; relayS_Index < _RELAY_NUMBER; relayS_Index++)
             {
-              ubuf.relayS[relay_Index] = ubuf.weeklySchedule.day[dayIndex]->item[item_Index].relay[relay_Index];
-              if (ubuf.relay[relay_Index] != ubuf.relayS[relay_Index])
-              {
-                ubuf.relay[relay_Index] = ubuf.relayS[relay_Index];
-                ubuf.relayMode[relay_Index] = 's';
-              }
-              //Serial.println("ubuf.weeklySchedule.day["+ String(dayIndex) +"]->item[" + String(item_Index) + "] , ubuf.relay[" + String(relay_Index) + "] = " + String(ubuf.relay[relay_Index]));
+              ubuf.relayS[relayS_Index] = ubuf.weeklySchedule.day[dayIndex]->item[item_Index].relay[relayS_Index];
+              DB_println("ubuf.weeklySchedule.day[" + String(dayIndex) + "]->item[" + String(item_Index) + "] , ubuf.relay[" + String(relayS_Index) + "] = " + String(ubuf.relayS[relayS_Index]));
             }
             file_class_UserBuffer.save(ubuf);
           }
@@ -158,7 +174,10 @@ int task_run_weeklySchedule(void) {
     //--------------------------------------------------------------------------------------------------------------------------------------------------------
     return wrote;
 }
+#undef DB_println
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
 void task_MCU_Received(void) {
   if (MCU.checkReceivedData())
   {
@@ -168,21 +187,17 @@ void task_MCU_Received(void) {
     {
       MCU.flag.pushButtonReceived = 0;
 
-      for (int i = 0; i < 12; i++)
+      for (int index = 0; index < _RELAY_NUMBER; index++)
       {
-        if (MCU.pushButton[i])
+        if (MCU.pushButton[index])
         {
-          MCU.pushButton[i] = 0;
-          (ubuf.relayM[i]) ? ubuf.relayM[i] = 0 : ubuf.relayM[i] = 1;
-          if (ubuf.relayM[i] != ubuf.relay[i])
-          {
-            ubuf.relay[i] = ubuf.relayM[i];
-            ubuf.relayMode[i] = 'm';
-          }
+          MCU.pushButton[index] = 0;
+          (ubuf.relayM[index]) ? ubuf.relayM[index] = 0 : ubuf.relayM[index] = 1;
+          ubuf.relayMode[index] = 'm';
         }
       }
       file_class_UserBuffer.save(ubuf);
-      MCU.send(ubuf.relay);
+      task_MCU_Send();
     }
 
     //--------------------------------------------
@@ -194,20 +209,55 @@ void task_MCU_Received(void) {
     //--------------------------------------------
   }
 }
+
+#undef DB_println 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
+
 void task_MCU_Send(void) {
+  for (int index = 0; index < _RELAY_NUMBER; index++)
+  switch (ubuf.relayMode[index])
+  {
+    //-------------------------
+  case 'm':
+    ubuf.relay[index] = ubuf.relayM[index];
+
+    break;
+    //-------------------------
+  case 'a':
+    ubuf.relay[index] = ubuf.relayA[index];
+
+    break;
+    //-------------------------
+  case 's':
+    ubuf.relay[index] = ubuf.relayS[index];
+
+    break;
+    //-------------------------
+  default:
+    ubuf.relay[index] = 0;
+    break;
+  }
+
+
   MCU.send(ubuf.relay);
 
   if ((abs(MCU.lastInterval - MCU.firstInterval)) > _MCU_VALID_INTERVAL)
   {
-    Serial.println("MCU is bieng reseted"); Serial.println(MCU.lastInterval); Serial.println(MCU.firstInterval);
+    DB_println("MCU is bieng reseted"); DB_println(MCU.lastInterval); DB_println(MCU.firstInterval);
     MCU.turnOff();
     delay_OS(2000);
     MCU.turnOn();
     delay_OS(2000);
   }
 }
+
+#undef DB_println 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define DB_println(xxx) Debug_println(xxx) 
+//#define DB_println(xxx) 
+
 void JSON_to_buf_setDateTime(void) {
   Serial.println("implement_setDateTime");
   // Extract the value from JSON as a String
@@ -225,10 +275,15 @@ void JSON_to_buf_setDateTime(void) {
     Serial.println("Failed to set the RTC.");
   }
 }
+
+#undef DB_println 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
+
 void JSON_to_buf_actionRelay(void) {
-  
-  Serial.println("implement_action_relay");
+
+  DB_println("implement_action_relay");
   
   int relay_Index = -1;
   for (JsonVariant item_relay : JSON1_actionRelay.dB["relay"].as<JsonArray>())
@@ -237,26 +292,24 @@ void JSON_to_buf_actionRelay(void) {
     if ((relay_Index >= 0) && (relay_Index < _RELAY_NUMBER))
     {
         ubuf.relayA[relay_Index] = item_relay.as<int>();
-        if (ubuf.relay[relay_Index] != ubuf.relayA[relay_Index])
-              {
-                ubuf.relay[relay_Index] = ubuf.relayA[relay_Index];
-                ubuf.relayMode[relay_Index] = 'a';
-              }
-        Serial.println("ubuf.relayA[" + String(relay_Index) + "] = " + String(item_relay.as<int>()));
+        DB_println("ubuf.relayA[" + String(relay_Index) + "] = " + String(item_relay.as<int>()));
     }
   }
-  //   relay_Index = -1;
-  // for (JsonVariant item_relay : JSON1_actionRelay.dB["mode"].as<JsonArray>())
-  // {
-  //   relay_Index++;
-  //   if ((relay_Index >= 0) && (relay_Index < _RELAY_NUMBER))
-  //   {
-  //       ubuf.relayMode[relay_Index] = char(item_relay.as<String>()[0]);     // if we want to change mode of relays
-  //       Serial.println("ubuf.relayMode[" + String(relay_Index) + "] = " + item_relay.as<String>()[0]);
-  //   }
-  // }
+  
+  relay_Index = -1;
+  for (JsonVariant item_relay : JSON1_actionRelay.dB["mode"].as<JsonArray>())
+  {
+    relay_Index++;
+    if ((relay_Index >= 0) && (relay_Index < _RELAY_NUMBER))
+    {
+        ubuf.relayMode[relay_Index] = char(item_relay.as<String>()[0]);     // if we want to change mode of relays
+        DB_println("ubuf.relayMode[" + String(relay_Index) + "] = " + item_relay.as<String>()[0]);
+    }
+  }
    file_class_UserBuffer.save(ubuf);
 }
+
+#undef DB_println
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //PAT: ubuf is very important for buffer management, and I wrote the json structure code, this command can help to understand the ubuf object.
 // {
@@ -272,6 +325,9 @@ void JSON_to_buf_actionRelay(void) {
 //   }
 // }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
+
 void JSON_to_buf_weeklySchedule(void) {
   static const String dayName[] = { "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday" };
   Serial.println("___________________________weeklySchedulePutToStruct_____________________________________");
@@ -288,6 +344,11 @@ void JSON_to_buf_weeklySchedule(void) {
       Serial.println("dayIndex = " + String(dayIndex));
       if (dayOfWeek == dayName[dayIndex])
       {
+        Serial.print("ubuf.weeklySchedule.day[dayIndex]->name = " );
+        Serial.println(ubuf.weeklySchedule.day[dayIndex]->name);
+        Serial.print("ubuf.weeklySchedule.day[dayIndex]->dayName = " );
+        Serial.println(ubuf.weeklySchedule.day[dayIndex]->dayName());
+
         int item_Index = -1;
         int relay_Index = -1;
         for (JsonVariant items : day.value().as<JsonArray>())
@@ -299,13 +360,13 @@ void JSON_to_buf_weeklySchedule(void) {
 
           ubuf.weeklySchedule.day[dayIndex]->item[item_Index].timeSec = RTC.toSecond(ubuf.weeklySchedule.day[dayIndex]->item[item_Index].time);
           Serial.println("ubuf.weeklySchedule.day[" + String(dayIndex) + "]->item[" + String(item_Index) + "].timeSec = " + String(ubuf.weeklySchedule.day[dayIndex]->item[item_Index].timeSec));
-
+            
           relay_Index = -1;
           for (JsonVariant item_relay : items["relay"].as<JsonArray>())
           {
             relay_Index++;
             ubuf.weeklySchedule.day[dayIndex]->item[item_Index].relay[relay_Index] = item_relay.as<int>();
-            Serial.println("ubuf.weeklySchedule..day[" + String(dayIndex) + "]->item[" + String(item_Index) + "].relay[" + String(relay_Index) + "] = " + String(item_relay.as<int>()));
+            Serial.println("ubuf.weeklySchedule.day[" + String(dayIndex) + "]->item[" + String(item_Index) + "].relay[" + String(relay_Index) + "] = " + String(item_relay.as<int>()));
 
           }
            Serial.println("-------------------------------------------");
@@ -321,8 +382,14 @@ void JSON_to_buf_weeklySchedule(void) {
       }
     }
   }
+     file_class_UserBuffer.save(ubuf);
 }
+
+#undef DB_println
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
+
 void buf_to_JSON_reportRelay(void) {
   Serial.println("implement_report_relay");
   DynamicJsonDocument doc(2048);
@@ -338,6 +405,8 @@ void buf_to_JSON_reportRelay(void) {
   serializeJson(doc, jsonStr);
   Serial.println(jsonStr);
 }
+
+#undef DB_println
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

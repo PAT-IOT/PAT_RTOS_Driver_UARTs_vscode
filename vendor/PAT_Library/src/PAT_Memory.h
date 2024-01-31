@@ -1,6 +1,13 @@
 #ifndef PAT_MEMORY_H
 #define PAT_MEMORY_H
 #include "SPIFFS.h"
+#include "PAT_Debug.h"
+
+#define DB_println(xxx) Debug_println(xxx) 
+//#define DB_println(xxx) 
+
+#define DB_print(xxx) Debug_print(xxx) 
+//#define DB_print(xxx) 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class class_nonVolatileMemory {
@@ -69,7 +76,7 @@ public:
         return (this->write(data));
     }
     //===============================================================================================================================================================================
-    bool read(const T& data) {
+    bool read(const T& data){
         //----------------------------------------------------
         if (!initialized)
             if (SPIFFS.begin(true))
@@ -81,20 +88,24 @@ public:
         {
             size_t bytesRead = file.read((uint8_t*)&data, sizeof(data));
             file.close();
-            if (bytesRead == sizeof(data)) return false;
+            if (bytesRead == sizeof(data))
+            {
             //---------
-            Serial.print("File content: ");
+            DB_print("File content: ");
             for (size_t i = 0; i < sizeof(data); ++i) {
-                Serial.print(((uint8_t*)&data)[i]);
-                Serial.print(' ');
+                DB_print(((uint8_t*)&data)[i]);
+                DB_print(' ');
             }
-            Serial.println();
-            //---------
+             DB_println(); 
+             //---------
+             return true;
+            }
         }
         //----------------------------------------------------
-        Serial.println("Failed to open file for writing");
+        Serial.println("Failed to open file for readding");
         return false;
     }
+    //===============================================================================================================================================================================
     bool load(const T& data) {
         return (this->read(data));
     }
@@ -120,7 +131,8 @@ public:
 
 
 
-
+#undef DB_println
+#undef DB_print
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #endif  // PAT_MEMORY_H
 

@@ -1,4 +1,5 @@
-// version 020729
+// version 021010
+
 
 #ifndef _PAT_DEBUG_H
 #define _PAT_DEBUG_H
@@ -49,7 +50,16 @@ String limitString(const String& str, size_t maxLength);
 //----------------------------------------------------------------------------------------------------
 #define DEBUG_EXECUTE_(FUNC_X) FUNC_X
 //----------------------------------------------------------------------------------------------------
+
+
+#define Debug_print(FUNC_X) Serial.print(FUNC_X); Serial.flush()
+#define Debug_println(FUNC_X) Serial.println(FUNC_X); Serial.flush()
+
+
+
 #else
+#define DB_print(FUNC_X) 
+#define DB_println(FUNC_X) 
 #define DEBUG_MEASURE_TIME(func) func
 #define DEBUG_MEASURE_TIME0(func) func
 #define DEBUG_EXECUTE(FUNC_X)
@@ -57,3 +67,5 @@ String limitString(const String& str, size_t maxLength);
 
 
 #endif  //_PAT_DEBUG_H
+
+

@@ -30,12 +30,9 @@ int class_JSON::load(MemoryJsonDocument<_JSON_DOCUMENT_SIZE>& dB_nvs) {
     class_nonVolatileMemory::read(this->key.c_str(), jsonString);  // Inherited from nonVolatileMemory
     if (!jsonString.isEmpty()) {
         DeserializationError error = deserializeJson(dB_nvs, jsonString);
-        if (error) {
-            return -1; // or another suitable error code
-        }
+        if (!error) return 1;
     }
-    
-    return 0; // or another suitable default value
+    return 0; 
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void class_UserBuffer::save(String str) {

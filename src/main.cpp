@@ -21,9 +21,16 @@ void setup() {
   led_wifi.init();
   led_nrf.init();
 
-  file_class_UserBuffer.load(ubuf);
+  if (!file_class_UserBuffer.load(ubuf))
+  {
+    if (!file_class_UserBuffer.load(ubuf))
+    {
+      file_class_UserBuffer.save(ubuf);
+    }
+  }
+  
   task_run_weeklySchedule();
-  MCU.send(ubuf.relay);
+  task_MCU_Send();
   //webServerInit();
   //enableLoopWDT();
   tasks_OS_Init();

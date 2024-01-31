@@ -12,8 +12,8 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 WebSocketsClient  webSocket;
-//MQTTPubSubClient  mqttClient;    //MQTTPubSub::PubSubClient<256> mqttClient;
-PubSubClient       mqttClient;    //MQTTPubSub::PubSubClient<256> mqttClient;
+MQTTPubSubClient  mqttClient;    //MQTTPubSub::PubSubClient<256> mqttClient;
+//PubSubClient       mqttClient;    //MQTTPubSub::PubSubClient<256> mqttClient;
 class_MQTT        MQTT;
 
 
@@ -104,7 +104,7 @@ int class_MQTT::init(void) {
                             // mqttClient.subscribe  (_TOPIC2, [](const String &payload, const size_t size){          }); 
                             // mqttClient.subscribe  (_TOPIC3, [](const String &payload, const size_t size){          }); 
                             // mqttClient.subscribe([](const String &topic, const String &payload, const size_t size){ onMqttMessage(topic, payload, size); });
-                            Serial.println(" MQTT was connected");
+                            Serial.println(" MQTT was connected"); 
                             return 1;
                             }
           Serial.print(". ");
