@@ -123,9 +123,9 @@ int class_MQTT::init(void) {
 void class_MQTT::erase(void) {
   mqttClient.clearWill();
   memset(&webSocket, 0, sizeof(WebSocketsClient));
-    memset(&mqttClient, 0, sizeof(MQTTPubSubClient));
-    memset(&WiFi, 0, sizeof(WiFi));
-    Serial.println("Classes were Erased");
+  memset(&mqttClient, 0, sizeof(MQTTPubSubClient));
+  memset(&WiFi, 0, sizeof(WiFi));
+  Serial.println("Classes were Erased");
   // WebSocketsClient* pwebSocket;
   // MQTTPubSubClient* pmqttClient;
   // pwebSocket = &webSocket;

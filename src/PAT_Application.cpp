@@ -70,21 +70,19 @@ void clearRAM() {
   // esp_partition_erase_range(partition, 0, partition->size);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//#define DB_println(xxx) Debug_println(xxx) 
-#define DB_println(xxx) 
+#define DB_println(xxx) Debug_println(xxx) 
+//#define DB_println(xxx) 
 
 void task_MQTT(void) {
-
-  mqttClient.update();
     static uint32_t millis1 = 0;
     //-------------------------------------
    // (!mqttClient.ping()) ||
-    if ((!mqttClient.isConnected()) || (WiFi.status() != WL_CONNECTED))// note: mqttClient.update()   should be called
+    if ((!mqttClient.isConnected()) || (WiFi.status() != WL_CONNECTED))
   {
     //MQTT.erase();
    DB_println("MQTT is Reinitializing");
     MQTT.init();
-    if ((millis() - millis1) > 20000)
+    if ((millis() - millis1) > 10000)
     {
      DB_println("ESP is bieng reseted");
       MQTT.erase();
@@ -94,8 +92,11 @@ void task_MQTT(void) {
   else
   {
      millis1 = millis();
-  }
-  //-------------------------------------
+    }
+
+    
+    mqttClient.update();
+    //-------------------------------------
   // static uint32_t millis1 = 0;
   // if (!Eth_connected())
   // {
