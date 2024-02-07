@@ -31,7 +31,8 @@ String limitString(const String& str, size_t maxLength);
   Serial.print(" ms into core:"); \
   Serial.println(xPortGetCoreID()); \
   Serial.println(limitString(#FUNC_X, 50)); \
-  Serial.println("_________________________________________________________________________");
+  Serial.println("_________________________________________________________________________");\
+  Serial.flush();
 //----------------------------------------------------------------------------------------------------
 #define DEBUG_MEASURE_TIME0(FUNC_X) \
   start_time_MEASURE0 = millis(); \
@@ -46,7 +47,8 @@ String limitString(const String& str, size_t maxLength);
   Serial.print(" ms into core:"); \
   Serial.println(xPortGetCoreID()); \
   Serial.println(limitString(#FUNC_X, 50)); \
-  Serial.println("_________________________________________________________________________");
+  Serial.println("_________________________________________________________________________");\
+  Serial.flush();
 //----------------------------------------------------------------------------------------------------
 #define DEBUG_EXECUTE_(FUNC_X) FUNC_X
 //----------------------------------------------------------------------------------------------------

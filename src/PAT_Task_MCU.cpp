@@ -25,12 +25,12 @@ extern class_UserBuffer ubuf;
 
 
 // void uart2_Rx_handler() {
-// if (Serial2.available()) {
-//     rx_data_Flag = Serial2.readBytesUntil('\n', (char *)rx_data, sizeof(rx_data) - 1);
-//     rx_data[rx_data_Flag] = '\0'; // Null-terminate the string
-//     Serial.print("MCU: ");
-//     Serial.println((char*)rx_data);
-// }
+//     if (Serial2.available()) {
+//         rx_data = Serial2.read('\n');
+//         rx_data[rx_data_Flag] = '\0'; // Null-terminate the string
+//         Serial.print("MCU: ");
+//         Serial.println((char*)rx_data);
+//     }
 // }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void class_MCU::init(unsigned long baud,int8_t rxPin, int8_t txPin, uint8_t rxfifo_full_thrhd ) {
@@ -40,7 +40,7 @@ void class_MCU::init(unsigned long baud,int8_t rxPin, int8_t txPin, uint8_t rxfi
   MCU_Reset.turnOff();
   begin(baud, SERIAL_8N1, rxPin, txPin, false, 20000UL, rxfifo_full_thrhd);
   Str.reserve(200);
-  //attachInterrupt(digitalPinToInterrupt(_RX2_PIN), uart2_Rx_handler, RISING);
+  //attachInterrupt(digitalPinToInterrupt(_RX2_PIN), uart2_Rx_handler, FALLING);
   //flag = &(rx_data_Flag);
   //this->reset()
 }
@@ -51,7 +51,7 @@ String class_MCU::readStr(void) {
     {
       char inChar = (char)this->read();
       this->Str += inChar;
-      delay(1);
+      delay_OS(1);
   }
   return  this->Str;
 }
@@ -137,6 +137,7 @@ void class_MCU::send(int *relay) {
         relay[8], relay[9], relay[10], relay[11]);
 
     MCU.println(out);
+    delay_OS(10);
     MCU.flush();
     //Serial.println(out);
 }

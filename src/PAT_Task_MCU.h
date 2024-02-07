@@ -7,7 +7,7 @@
 #define _TX2_PIN 16
 #define _RX2_PIN 17
 #define _UART_MCU 2  //uart2
-#define   _MCU_VALID_INTERVAL  3500
+#define   _MCU_VALID_INTERVAL  5000
 
 
 static void uart2_Rx_handler();

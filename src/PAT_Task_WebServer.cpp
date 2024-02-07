@@ -75,6 +75,7 @@ struct Config {
 
 Config Config_webServer;
 
+
 void serverRequest() {
     if (!SPIFFS.begin(true)) {
         Serial.println("An Error has occurred while mounting SPIFFS");
@@ -86,15 +87,25 @@ void serverRequest() {
         request->send(SPIFFS, "/index.html", "text/html");
     });
 
-    // Serve style.css
     webServer.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(SPIFFS, "/style.css", "text/css");
     });
+    webServer.on("/bootstrap.min.css", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->send(SPIFFS, "/bootstrap.min.css", "text/css");
+      });
 
-    // Serve javascript.js
-    webServer.on("/javascript.js", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(SPIFFS, "/javascript.js", "application/javascript");
-    });
+    
+    webServer.on("/javascript.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+        request->send(SPIFFS, "/javascript.js", "application/js");
+      });
+
+    webServer.on("/jquery.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->send(SPIFFS, "/jquery.min.js", "application/js");
+      });
+    webServer.on("/bootstrap.min.js", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->send(SPIFFS, "/bootstrap.min.js", "application/js");
+      });
+    
 
     // Handle POST request to update configuration
     webServer.on("/updateConfig", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -111,12 +122,6 @@ void serverRequest() {
 
     webServer.begin();
 }
-
-
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
 String processor(const String& var) {

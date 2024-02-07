@@ -248,6 +248,7 @@ public:
   int relayA[12] = { 0,0,0,0,0,0,0,0,0,0,0,0 }; 
   int relayS[12] = { 0,0,0,0,0,0,0,0,0,0,0,0 };
   int relayM[12] = { 0,0,0,0,0,0,0,0,0,0,0,0 };
+  int relayR[12] = { 0,0,0,0,0,0,0,0,0,0,0,0 };
   char relayMode[12] = { 'a','a','a','a','a','a','a','a','a','a','a','a'};
   
   class_weeklySchedule    weeklySchedule;

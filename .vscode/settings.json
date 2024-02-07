@@ -1,4 +1,13 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
-    "cmake.sourceDirectory": "D:/01-PAT_Project/02-Wireless IoT Controller/02-Code/rev1.0/IOT_Relay_Control/vendor/Adafruit_BusIO"
+    "cmake.sourceDirectory": "D:/01-PAT_Project/02-Wireless IoT Controller/02-Code/rev1.0/IOT_Relay_Control/vendor/Adafruit_BusIO",
+    "files.associations": {
+        "*.tcc": "cpp",
+        "unordered_map": "cpp",
+        "fstream": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "sstream": "cpp",
+        "string": "cpp"
+    }
 }

@@ -16,8 +16,11 @@
 #include <PAT_General.h>
 #include <PAT_IO_Devices.h>
 #include <PAT_ESP.h>
+#include <PAT_NRF24.h>
+
 //#include "PAT_Ethernet.h"
 extern Class_ESP esp;
+extern Class_NRF24 NRF; 
 //-------------------------------------------------------------
 
 extern class_Input  pushButton_WebServer;

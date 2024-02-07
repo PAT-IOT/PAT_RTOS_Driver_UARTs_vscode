@@ -29,7 +29,6 @@ void tasks_OS_Init() {
   xTaskCreatePinnedToCore(taskCore0_2, "TaskCore0_2", 5000, NULL, 2, NULL, 0);
   xTaskCreatePinnedToCore(taskCore0_3, "TaskCore0_3", 5000, NULL, 3, NULL, 0);
 
-
   // Set up Core 1 tasks
   xTaskCreatePinnedToCore(taskCore1_1, "TaskCore1_1", 5000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(taskCore1_2, "TaskCore1_2", 10000, NULL, 2, NULL, 1);
@@ -37,19 +36,32 @@ void tasks_OS_Init() {
 }
 //0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 void taskCore0_1(void* parameter) {
-  int receivedData;
-  for (;;) {
-    //if (xQueueReceive(dataQueue, &receivedData, portMAX_DELAY) == pdPASS) {
-     // Serial.println(String(millis()/1000.0) +"-> TaskCore0_1: receive "+ String(receivedData));
-   
-    //} 
-    task_MCU_Send();
-
-    delay_OS(1000);
+  for (;;)
+  {
+    //DEBUG_MEASURE_TIME(
+    task_MCU_Received();
+    task_NRF24_Received();
+    //)
+      delay_OS(10);
   }
 }
 //0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 void taskCore0_2(void* parameter) {
+  int receivedData;
+  for (;;)
+  {
+    //if (xQueueReceive(dataQueue, &receivedData, portMAX_DELAY) == pdPASS) {
+     // Serial.println(String(millis()/1000.0) +"-> TaskCore0_1: receive "+ String(receivedData));
+
+    //} 
+    //DEBUG_MEASURE_TIME(
+      task_MCU_Send();
+    //)
+      delay_OS(500);
+  }
+}
+//0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+void taskCore0_3(void* parameter) {
   static int dataToSend = 0;  // Sample data to send
   for (;;)
   {
@@ -57,38 +69,32 @@ void taskCore0_2(void* parameter) {
      //if (xQueueSend(dataQueue, &dataToSend, portMAX_DELAY) == pdPASS) {
      //Serial.println(String(millis()/1000.0) + "-> TaskCore0_2 Send : " + String(dataToSend));
      //}
-    tast_leds();
-    delay_OS(300);
-  }
-}
-//0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-void taskCore0_3(void* parameter) {
-  for (;;)
-  {
-    task_MCU_Received();
-    delay_OS(1);
+    //DEBUG_MEASURE_TIME(
+      tast_leds();
+    //)
+      delay_OS(200);
   }
 }
 //1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 void taskCore1_1(void* parameter) {
   for (;;)
   {
-      //Serial.println("\t\t\t" + String(millis()/1000.0) + "-> TaskCore1_1");
-      //esp.wdg_reset();
-    task_RTC();
-    task_run_weeklySchedule();
-      delay_OS(1000);
+    //Serial.println("\t\t\t" + String(millis()/1000.0) + "-> TaskCore1_2");
+    //DEBUG_MEASURE_TIME(
+    task_MQTT();
+    //)
+    delay_OS(500);
   }
 }
 //1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 void taskCore1_2(void* parameter) {
   for (;;)
   {
-      //Serial.println("\t\t\t" + String(millis()/1000.0) + "-> TaskCore1_2");
-      //DEBUG_MEASURE_TIME(
-      task_MQTT();
-      //)
-      delay_OS(500);
+    //Serial.println("\t\t\t" + String(millis()/1000.0) + "-> TaskCore1_1");
+    //esp.wdg_reset();
+    task_RTC();
+    task_run_weeklySchedule();
+    delay_OS(1000);
   }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

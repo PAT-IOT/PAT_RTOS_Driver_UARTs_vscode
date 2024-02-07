@@ -9,17 +9,21 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
   
-  Serial.begin(115200);
+  Serial.begin(250000);
   while (!Serial);
   Serial.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+  Serial.flush();
   //esp.resetReason();
   //esp.wdg_init(15000);
+  NRF.init();
   RTC.init();
   MCU.init();
+  
   pushButton_WebServer.init();
   pushButton_ResetPassword.init();
   led_wifi.init();
   led_nrf.init();
+  
 
   if (!file_class_UserBuffer.load(ubuf))
   {
@@ -31,7 +35,7 @@ void setup() {
   
   task_run_weeklySchedule();
   task_MCU_Send();
-  //webServerInit();
+  webServerInit();
   //enableLoopWDT();
   tasks_OS_Init();
 }

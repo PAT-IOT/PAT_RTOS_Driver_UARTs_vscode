@@ -193,7 +193,7 @@ void task_MCU_Received(void) {
         if (MCU.pushButton[index])
         {
           MCU.pushButton[index] = 0;
-          (ubuf.relayM[index]) ? ubuf.relayM[index] = 0 : ubuf.relayM[index] = 1;
+          (ubuf.relay[index]) ? ubuf.relayM[index] = 0 : ubuf.relayM[index] = 1;
           ubuf.relayMode[index] = 'm';
         }
       }
@@ -215,6 +215,29 @@ void task_MCU_Received(void) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#define DB_println(xxx) Debug_println(xxx) 
 #define DB_println(xxx) 
+void task_NRF24_Received(void) {
+  
+  if (NRF.scan())
+  {
+    NRF.flag = 0;
+      for (int index = 0; index < _RELAY_NUMBER; index++)
+      {
+        if (NRF.data.relayR[index]==1)
+        {
+          NRF.data.relayR[index] = 0;
+          (ubuf.relay[index]) ? ubuf.relayR[index] = 0 : ubuf.relayR[index] = 1;
+          ubuf.relayMode[index] = 'r';
+        }
+      }
+      file_class_UserBuffer.save(ubuf);
+    //--------------------------------------------
+  }
+}
+
+#undef DB_println 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
 
 void task_MCU_Send(void) {
   for (int index = 0; index < _RELAY_NUMBER; index++)
@@ -223,6 +246,11 @@ void task_MCU_Send(void) {
     //-------------------------
   case 'm':
     ubuf.relay[index] = ubuf.relayM[index];
+
+    break;
+    //-------------------------
+  case 'r':
+    ubuf.relay[index] = ubuf.relayR[index];
 
     break;
     //-------------------------
@@ -251,6 +279,7 @@ void task_MCU_Send(void) {
     delay_OS(2000);
     MCU.turnOn();
     delay_OS(2000);
+    MCU.lastInterval = millis();
   }
 }
 
