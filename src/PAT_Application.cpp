@@ -9,47 +9,77 @@
 #include <PAT_Debug.h>
 #include "PAT_Application.h"
 
+
+// #define _SEMAPHORE(xxx, yyy) \
+//      do{ \
+//         if (xSemaphoreTake((xxx), portMAX_DELAY) == pdTRUE) { \
+//             (yyy); \
+//             xSemaphoreGive((xxx)); \
+//         } \
+//      } while(0) 
+
+#define _SEMAPHORE(xxx, yyy)  (yyy) 
+
+
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#define DB_println(xxx) Debug_println(xxx) 
 #define DB_println(xxx) 
 
 void tast_leds(void) {
+  //---------------------------------
   if (WiFi.status() == WL_CONNECTED)
   {
-    (mqttClient.isConnected()) ? led_wifi.turnOn() : led_wifi.toggle();
+    if (MQTT.onMessage)
+    {
+      for (size_t i = 0; i < 10; i++)
+      {
+        led_wifi.toggleOnFloating();
+        delay_OS(50);
+      }
+    }
+    else if (mqttClient.isConnected())
+    {
+      led_wifi.turnOn();
+    }
+    else
+    {
+      led_wifi.toggle();
+    }
   }
-  else {
-      led_wifi.turnOff();
+  //---------------------------------
+  else
+  {
+   led_wifi.turnOff();
   }
- 
-  /*(nrf24.status()== NRFf24_CONNECTED) ? led_nrf.turnOn() : */led_nrf.turnOff();
+  //---------------------------------
+}
+#undef DB_println
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//#define DB_println(xxx) Debug_println(xxx) 
+#define DB_println(xxx) 
+
+void tast_leds2(void) {
+  if (NRF.onMessage)
+  {
+    for (size_t i = 0; i < 10; i++)
+    {
+      led_nrf.toggleOnFloating();
+      delay_OS(50);
+    }
+  }
+  else if (NRF.status() == NRF_CONNECTED)
+  {
+    led_nrf.turnOn();
+  }
+  else
+  {
+    led_nrf.turnOff();
+  }
 }
 
 #undef DB_println
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define DB_println(xxx) Debug_println(xxx) 
-//#define DB_println(xxx) 
-
-void task_RTC(void) {
-  if (RTC.initialized)
-  {
-  static int w=0;
-    DateTime now = RTC.now();
-    static DateTime future;
-  DB_println("\nCurrent Time: " + String(now.year()) + "-" + String(now.month()) + "-" + String(now.day()) + " " + String(now.hour()) + ":" + String(now.minute()) + ":" + String(now.second()));
-    // if(w==0){
-    //             future = RTC.now() + TimeSpan(0, 0, 1, 0); // after  1 min
-    //             w=1;
-    //         }
-  // DB_println("\t\t\t\t\t\tFuture  Time: " + String(future.year()) + "-" + String(future.month()) + "-" + String(future.day()) + " " + String(future.hour()) + ":" + String(future.minute()) + ":" + String(future.second()));
-  //   if(future < now)  DB_println("Alarm ON ");
-  //   else  DB_println("\t\t\t\t\t\tAlarm OFF ");
-  }else {
-  RTC.init();
-  }
-}
-
-#undef DB_println 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#define DB_println(xxx) Debug_println(xxx) 
 #define DB_println(xxx) 
@@ -60,75 +90,48 @@ void task_WebServer(void) {
 
 #undef DB_println 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void clearRAM() { 
-  // esp_partition_iterator_t it = esp_partition_find(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_ANY, NULL);
-  // if (it == NULL) {
-  //   DB_println("Error: partition not found.");
-  //   return;
-  // }
-  // const esp_partition_t *partition = esp_partition_get(it);
-  // esp_partition_erase_range(partition, 0, partition->size);
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define DB_println(xxx) Debug_println(xxx) 
 //#define DB_println(xxx) 
 
 void task_MQTT(void) {
-    static uint32_t millis1 = 0;
+  static unsigned long millis1 = 0;
     //-------------------------------------
-   // (!mqttClient.ping()) ||
-    if ((!mqttClient.isConnected()) || (WiFi.status() != WL_CONNECTED))
-  {
-    //MQTT.erase();
-   DB_println("MQTT is Reinitializing");
-    MQTT.init();
-    if ((millis() - millis1) > 10000)
+    if ((mqttClient.update()) && (mqttClient.isConnected()) && (WiFi.status() == WL_CONNECTED))
     {
-     DB_println("ESP is bieng reseted");
-      MQTT.erase();
-      esp_restart();
+      millis1 = millis();
+      DB_println(millis1);
     }
-  }
   else
   {
-     millis1 = millis();
-    }
-
-    
-    mqttClient.update();
-    //-------------------------------------
-  // static uint32_t millis1 = 0;
-  // if (!Eth_connected())
-  // {
-  //   MQTT.erase();
-  //   MQTT.init();
-  //   if ((millis() - millis1) > 40000)
-  //   {
-  //     DB_println("ESP is bieng reseted");
-  //     esp_restart();
-  //   }
-  // }
-  // else millis1 = millis();
+      DB_println("MQTT is being Reinitialized");
+      MQTT.init();
+      if ((millis() - millis1) > 15000)
+      {
+        DB_println("ESP is bieng reseted");
+        MQTT.erase();
+        esp_restart();
+      }
+  }
   //--------------------------------------
   if (JSON1_actionRelay.payloadFlag)
   {
     JSON1_actionRelay.payloadFlag = 0;
-    JSON_to_buf_actionRelay();
+    _SEMAPHORE(mutex_ubuf, { JSON_to_buf_actionRelay(); });
   }
   if (JSON1_reportRelay.payloadFlag)
   {
-    JSON1_reportRelay.payloadFlag=0;
-    buf_to_JSON_reportRelay();
+    JSON1_reportRelay.payloadFlag = 0;
+    _SEMAPHORE(mutex_ubuf, { buf_to_JSON_reportRelay(); });
   }
   if (JSON1_weeklySchedule.payloadFlag)
   {
     JSON1_weeklySchedule.payloadFlag = 0;
-    JSON_to_buf_weeklySchedule();
+    _SEMAPHORE(mutex_ubuf, { JSON_to_buf_weeklySchedule(); });
   }
   if (JSON1_setDateTime.payloadFlag)
   {
     JSON1_setDateTime.payloadFlag = 0;
-    JSON_to_buf_setDateTime();
+    _SEMAPHORE(mutex_ubuf, { JSON_to_buf_setDateTime(); });
   }
   //--------------------------------------
 }
@@ -182,8 +185,8 @@ int task_run_weeklySchedule(void) {
 void task_MCU_Received(void) {
   if (MCU.checkReceivedData())
   {
-
-    //--------------------------------------------
+    _SEMAPHORE(mutex_ubuf, {
+      //--------------------
     if (MCU.flag.pushButtonReceived)
     {
       MCU.flag.pushButtonReceived = 0;
@@ -208,6 +211,7 @@ void task_MCU_Received(void) {
       MCU.lastInterval = millis();
     }
     //--------------------------------------------
+      });
   }
 }
 
@@ -216,21 +220,23 @@ void task_MCU_Received(void) {
 //#define DB_println(xxx) Debug_println(xxx) 
 #define DB_println(xxx) 
 void task_NRF24_Received(void) {
-  
+
   if (NRF.scan())
   {
-    NRF.flag = 0;
+    _SEMAPHORE(mutex_ubuf, {
+      //--------------------
+      NRF.flag = 0;
       for (int index = 0; index < _RELAY_NUMBER; index++)
       {
-        if (NRF.data.relayR[index]==1)
+        if (NRF.data.relayR[index] == 1)
         {
           NRF.data.relayR[index] = 0;
           (ubuf.relay[index]) ? ubuf.relayR[index] = 0 : ubuf.relayR[index] = 1;
           ubuf.relayMode[index] = 'r';
         }
       }
-      file_class_UserBuffer.save(ubuf);
-    //--------------------------------------------
+      //--------------------
+      });
   }
 }
 
@@ -240,37 +246,42 @@ void task_NRF24_Received(void) {
 #define DB_println(xxx) 
 
 void task_MCU_Send(void) {
-  for (int index = 0; index < _RELAY_NUMBER; index++)
-  switch (ubuf.relayMode[index])
-  {
-    //-------------------------
-  case 'm':
-    ubuf.relay[index] = ubuf.relayM[index];
-
-    break;
-    //-------------------------
-  case 'r':
-    ubuf.relay[index] = ubuf.relayR[index];
-
-    break;
-    //-------------------------
-  case 'a':
-    ubuf.relay[index] = ubuf.relayA[index];
-
-    break;
-    //-------------------------
-  case 's':
-    ubuf.relay[index] = ubuf.relayS[index];
-
-    break;
-    //-------------------------
-  default:
-    ubuf.relay[index] = 0;
-    break;
-  }
 
 
-  MCU.send(ubuf.relay);
+  _SEMAPHORE(mutex_ubuf, {
+    //--------------------
+    for (int index = 0; index < _RELAY_NUMBER; index++)
+      switch (ubuf.relayMode[index])
+      {
+        //-------------------------
+      case 'm':
+        ubuf.relay[index] = ubuf.relayM[index];
+
+        break;
+        //-------------------------
+      case 'r':
+        ubuf.relay[index] = ubuf.relayR[index];
+
+        break;
+        //-------------------------
+      case 'a':
+        ubuf.relay[index] = ubuf.relayA[index];
+
+        break;
+        //-------------------------
+      case 's':
+        ubuf.relay[index] = ubuf.relayS[index];
+
+        break;
+        //-------------------------
+      default:
+        ubuf.relay[index] = 0;
+        break;
+      }
+    file_class_UserBuffer.save(ubuf);
+    MCU.send(ubuf.relay);
+    //--------------------
+    });
 
   if ((abs(MCU.lastInterval - MCU.firstInterval)) > _MCU_VALID_INTERVAL)
   {
@@ -281,6 +292,9 @@ void task_MCU_Send(void) {
     delay_OS(2000);
     MCU.lastInterval = millis();
   }
+
+  NRF.onMessage = 0;
+  MQTT.onMessage = 0;
 }
 
 #undef DB_println 
@@ -438,6 +452,31 @@ void buf_to_JSON_reportRelay(void) {
 
 #undef DB_println
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define DB_println(xxx) Debug_println(xxx) 
+//#define DB_println(xxx) 
 
+void task_RTC(void) {
+  if (RTC.initialized)
+  {
+    static int w = 0;
+    DateTime now = RTC.now();
+    static DateTime future;
+    DB_println("\nCurrent Time: " + String(now.year()) + "-" + String(now.month()) + "-" + String(now.day()) + " " + String(now.hour()) + ":" + String(now.minute()) + ":" + String(now.second()));
+    // if(w==0){
+    //             future = RTC.now() + TimeSpan(0, 0, 1, 0); // after  1 min
+    //             w=1;
+    //         }
+  // DB_println("\t\t\t\t\t\tFuture  Time: " + String(future.year()) + "-" + String(future.month()) + "-" + String(future.day()) + " " + String(future.hour()) + ":" + String(future.minute()) + ":" + String(future.second()));
+  //   if(future < now)  DB_println("Alarm ON ");
+  //   else  DB_println("\t\t\t\t\t\tAlarm OFF ");
+  }
+  else
+  {
+    RTC.init();
+  }
+}
+
+#undef DB_println 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

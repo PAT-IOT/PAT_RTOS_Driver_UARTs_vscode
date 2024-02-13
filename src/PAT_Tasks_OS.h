@@ -2,12 +2,14 @@
 #define PAT_Tasts_OS_H
 
 
+extern SemaphoreHandle_t mutex_ubuf;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void tasks_OS_Init();
 
 void taskCore0_1(void* parameter);
 void taskCore0_2(void* parameter);
 void taskCore0_3(void* parameter);
+void taskCore0_4(void* parameter);
 
 void taskCore1_1(void* parameter);
 void taskCore1_2(void* parameter);

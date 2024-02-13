@@ -16,6 +16,15 @@
 // }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef enum {
+  NRF_NOT_FOUND = 0,   
+  NRF_SCAN_COMPLETED = 2,
+  NRF_CONNECTED = 3,
+  NRF_CONNECT_FAILED = 4,
+  NRF_CONNECTION_LOST = 5,
+  NRF_DISCONNECTED = 6
+} NRF_status_t;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct __attribute__((packed)) struct_NRF24 // Note the packed attribute.
 {
   char starter = '{';
@@ -29,6 +38,8 @@ class Class_NRF24 {
 private:
   struct_NRF24 vdata;
 public:
+  NRF_status_t status_t;
+  uint8_t onMessage;
   uint8_t flag;
   struct_NRF24 data;
 
@@ -37,8 +48,9 @@ public:
     //data.channel = { 0,0,0,0,0,0,0,0,0,0,0,0 };
   }
 
-  int init(void);
-  void println(char *str);
+  NRF_status_t init(void);
+  NRF_status_t status(void);
+  void println(char* str);
   void print(char *str);
   int scan(void);
   int scanInt(void);

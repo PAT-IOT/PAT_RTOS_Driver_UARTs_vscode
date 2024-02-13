@@ -2,7 +2,9 @@
 #include <Arduino.h>
 #include "PAT_Tasks_OS.h"
 #include "PAT_Application.h"
-
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/semphr.h>
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,14 +23,31 @@
 // dataQueue = xQueueCreate(5, sizeof(int));  // Create a queue for data transfer// Queue size of 5, assuming you're sending integers
 
 QueueHandle_t dataQueue;
+SemaphoreHandle_t  mutex_ubuf = NULL;
+
+
+
+
+
 void tasks_OS_Init() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////------------------------------------------
   //dataQueue = xQueueCreate(5, sizeof(int)); 
   // Set up Core 0 tasks
-  xTaskCreatePinnedToCore(taskCore0_1, "TaskCore0_1", 5000, NULL, 1, NULL, 0);
-  xTaskCreatePinnedToCore(taskCore0_2, "TaskCore0_2", 5000, NULL, 2, NULL, 0);
-  xTaskCreatePinnedToCore(taskCore0_3, "TaskCore0_3", 5000, NULL, 3, NULL, 0);
 
+
+  mutex_ubuf = xSemaphoreCreateMutex();
+  if (mutex_ubuf == NULL)
+  {
+    Serial.println("Error creating mutex!");
+    Serial.flush();
+    while (1) {} // Handle error gracefully
+  }
+
+
+  xTaskCreatePinnedToCore(taskCore0_1, "TaskCore0_1", 4000, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(taskCore0_2, "TaskCore0_2", 4000, NULL, 2, NULL, 0);
+  xTaskCreatePinnedToCore(taskCore0_3, "TaskCore0_3", 4000, NULL, 3, NULL, 0);
+  xTaskCreatePinnedToCore(taskCore0_4, "TaskCore0_4", 4000, NULL, 4, NULL, 0);
   // Set up Core 1 tasks
   xTaskCreatePinnedToCore(taskCore1_1, "TaskCore1_1", 5000, NULL, 1, NULL, 1);
   xTaskCreatePinnedToCore(taskCore1_2, "TaskCore1_2", 10000, NULL, 2, NULL, 1);
@@ -42,7 +61,7 @@ void taskCore0_1(void* parameter) {
     task_MCU_Received();
     task_NRF24_Received();
     //)
-      delay_OS(10);
+      delay_OS(5);
   }
 }
 //0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -73,6 +92,16 @@ void taskCore0_3(void* parameter) {
       tast_leds();
     //)
       delay_OS(200);
+  }
+}
+//0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+void taskCore0_4(void* parameter) {
+  static int dataToSend = 0;  // Sample data to send
+  for (;;)
+  {
+    tast_leds2();
+
+    delay_OS(200);
   }
 }
 //1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111

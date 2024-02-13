@@ -28,7 +28,7 @@ static void radioInterrupt(void){
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int Class_NRF24::init(void) {
+NRF_status_t Class_NRF24::init(void) {
   SPI.begin(PIN_RADIO_SCK, PIN_RADIO_MISO, PIN_RADIO_MOSI, PIN_RADIO_CSN);
 
   // Indicate to NRFLite that it should not call SPI.begin() during initialization since it has already been done.
@@ -39,18 +39,20 @@ int Class_NRF24::init(void) {
   {
     Serial.println("NRF24 was initialized ");
     Serial.flush();
-
-    return 1;
+    this->status_t = NRF_CONNECTED;
   }
   else
   {
     Serial.println("NRF24 couldn't initialized");
     Serial.flush();
-
-    return 0;
+    this->status_t = NRF_NOT_FOUND;
   }
+  return status_t;
 }
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+NRF_status_t Class_NRF24::status(void) {
+  return this->status_t;
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Class_NRF24::println(char *str) {
 
@@ -85,6 +87,7 @@ int Class_NRF24::scan(void) {
   //--------------------------------------------------------
   while (_radio.hasDataISR())
   {
+    onMessage = 1;
     _radio.readData(&this->vdata);
     received = 1;
   }
@@ -102,7 +105,7 @@ int Class_NRF24::scan(void) {
       DB_print("timestamp= ");
       DB_println(this->data.timestamp);
       DB_print("relayR= ");
-      for (size_t i = 0; i < sizeof(data.relayR); i++)
+      for (size_t i = 0; i < sizeof(this->data.relayR); i++)
       {
         DB_print(this->data.relayR[i]);
         DB_print("  ");

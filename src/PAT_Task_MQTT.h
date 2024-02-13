@@ -12,6 +12,7 @@ static void onMqttMessage(const String& topic, const String& payload, const size
 class class_MQTT : public class_JSON
 {
 public:
+  uint8_t onMessage;
 
   int init(void);
   void erase(void);

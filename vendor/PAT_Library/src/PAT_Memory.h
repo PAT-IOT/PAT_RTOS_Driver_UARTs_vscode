@@ -37,7 +37,7 @@ public:
         else
         {
         initialized = false;
-        Serial.println("Failed to mount file system");
+        DB_println("Failed to mount file system");
         }
     }
 //===============================================================================================================================================================================
@@ -58,6 +58,7 @@ public:
     //----------------------------------------------------
     else if (!SPIFFS.exists(path))
     {
+        file.close();
         SPIFFS.mkdir(path);
         File file = SPIFFS.open(path, "w");
         if (file)
@@ -66,14 +67,19 @@ public:
             file.close();
             if (bytesWritten == sizeof(data))   return true;
         }
+        file.close();
     }
     //----------------------------------------------------
-    Serial.println("Failed to open file for writing");
+    DB_println("Failed to open file for writing");
     return false;
     }
     //===============================================================================================================================================================================
     bool save(const T& data) {
-        return (this->write(data));
+        for (size_t i = 0; i < 3; i++)
+        {
+            if (this->write(data)) return true;
+        }
+        return false;
     }
     //===============================================================================================================================================================================
     bool read(const T& data){
@@ -91,23 +97,29 @@ public:
             if (bytesRead == sizeof(data))
             {
             //---------
-            DB_print("File content: ");
-            for (size_t i = 0; i < sizeof(data); ++i) {
-                DB_print(((uint8_t*)&data)[i]);
-                DB_print(' ');
-            }
-             DB_println(); 
+            DB_println("File content: read");
+            // DB_print("File content: ");
+            // for (size_t i = 0; i < sizeof(data); ++i) {
+            //     DB_print(((uint8_t*)&data)[i]);
+            //     DB_print(' ');
+            // }
+            //  DB_println(); 
              //---------
              return true;
             }
         }
+        file.close();
         //----------------------------------------------------
-        Serial.println("Failed to open file for readding");
+        DB_println("Failed to open file for readding");
         return false;
     }
     //===============================================================================================================================================================================
-    bool load(const T& data) {
-        return (this->read(data));
+    bool load(const T& data) {       
+        for (size_t i = 0; i < 3; i++)
+        {
+            if (this->read(data)) return true;
+        }
+        return false;
     }
     //===============================================================================================================================================================================
 };

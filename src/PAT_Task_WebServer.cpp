@@ -81,7 +81,7 @@ void serverRequest() {
         Serial.println("An Error has occurred while mounting SPIFFS");
         return;
     }
-
+    
     // Serve index.html on root request 
     webServer.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(SPIFFS, "/index.html", "text/html");

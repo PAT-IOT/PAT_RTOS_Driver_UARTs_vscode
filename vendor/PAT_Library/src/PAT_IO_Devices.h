@@ -54,23 +54,32 @@ public:
     }
 };*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+typedef enum {
+    IO_TURNED_OFF = 0,
+    IO_TURNED_ON = 1,
+    IO_FLOATING = 2,
+    IO_NOTSET = 3
+} IO_status_t;
+
 
 class class_Digital_Output {
 private:
 
 public:
   uint8_t pin;
-  bool mode;
-  bool isOn;
-  class_Digital_Output(uint8_t pin , bool activeMode = HIGH);
+  uint8_t mode;
+  uint8_t isOn;
+  IO_status_t  status_t;
+  void init();
+  class_Digital_Output(uint8_t pin, bool activeMode = HIGH);
   void operator()(bool activeMode);
   void turnOn();
   void turnOff();
   void toggle();
- //void toggleOnFloat();
-
-  void init();
-  bool getState();
+  void floating();
+  void toggleOnFloating();
+  void toggleOffFloating();
+  IO_status_t status();
 };
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define _PUSHBUTTON_NUMBER 12 

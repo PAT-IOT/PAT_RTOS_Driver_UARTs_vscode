@@ -21,8 +21,9 @@ class_MQTT        MQTT;
 // WebSocketsClient EthwebSocket;
 // MQTTPubSubClient EthmqttClient;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void onMqttMessage(const String &topic, const String &payload, const size_t size) {
-  static boolean firstBoot= true;
+void onMqttMessage(const String& topic, const String& payload, const size_t size) {
+  MQTT.onMessage = 1;
+  static boolean firstBoot = true;
   if (firstBoot)
   {
     firstBoot = false;
@@ -125,7 +126,6 @@ void class_MQTT::erase(void) {
   memset(&webSocket, 0, sizeof(WebSocketsClient));
   memset(&mqttClient, 0, sizeof(MQTTPubSubClient));
   memset(&WiFi, 0, sizeof(WiFi));
-  Serial.println("Classes were Erased");
   // WebSocketsClient* pwebSocket;
   // MQTTPubSubClient* pmqttClient;
   // pwebSocket = &webSocket;
