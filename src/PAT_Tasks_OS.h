@@ -1,3 +1,4 @@
+
 #ifndef PAT_Tasts_OS_H
 #define PAT_Tasts_OS_H
 
@@ -13,6 +14,7 @@ void taskCore0_4(void* parameter);
 
 void taskCore1_1(void* parameter);
 void taskCore1_2(void* parameter);
+void taskCore1_3(void* parameter);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #endif  // PAT_Tasts_OS_H
 

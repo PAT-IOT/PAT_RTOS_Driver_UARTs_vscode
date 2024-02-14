@@ -219,25 +219,19 @@ void task_MCU_Received(void) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //#define DB_println(xxx) Debug_println(xxx) 
 #define DB_println(xxx) 
-void task_NRF24_Received(void) {
-
+int task_NRF24_Received(int *out) {
   if (NRF.scan())
   {
-    _SEMAPHORE(mutex_ubuf, {
       //--------------------
       NRF.flag = 0;
       for (int index = 0; index < _RELAY_NUMBER; index++)
       {
-        if (NRF.data.relayR[index] == 1)
-        {
-          NRF.data.relayR[index] = 0;
-          (ubuf.relay[index]) ? ubuf.relayR[index] = 0 : ubuf.relayR[index] = 1;
-          ubuf.relayMode[index] = 'r';
-        }
+        out[index] = NRF.data.relayR[index];
       }
       //--------------------
-      });
+    return 1;
   }
+  return 0;
 }
 
 #undef DB_println 

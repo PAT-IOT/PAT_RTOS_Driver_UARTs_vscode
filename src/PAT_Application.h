@@ -11,7 +11,7 @@ void task_WebServer(void);
 int  task_run_weeklySchedule(void);
 void task_MCU_Received(void);
 void task_MCU_Send(void);
-void task_NRF24_Received(void);
+int task_NRF24_Received(int* out);
 
 
 void buf_to_JSON_reportRelay(void);
