@@ -1,0 +1,12 @@
+
+git init
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/PAT-IOT/RTOS_Driver_NRF24.git
+git push -u origin main
+
+
+git remote -v
+git remote set-url origin https://github.com/PAT-IOT/PAT_RTOS_Driver_UARTs_vscode.git
+git remote -v
+git push origin main
