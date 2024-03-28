@@ -1,0 +1,6 @@
+# Name,   Type, SubType, Offset,    Size, Flags
+nvs,      data, nvs,     0x9000,    0x6000,
+otadata,  data, ota,     0xF000,    0x2000,
+app0,     app,  ota_0,   0x10000,   0x3D0000,  # Adjusted size for firmware
+spiffs,   data, spiffs,  0x3E0000,  0x200000,  # Adjusted size for SPIFFS
+coredump, data, coredump, 0x600000,  0x10000,
